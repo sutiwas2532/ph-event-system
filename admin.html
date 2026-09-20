@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แอดมิน — Professor Healthcare Event System</title>
+<meta name="theme-color" content="#224269">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const fb = [];
+  if (typeof XLSX === 'undefined') fb.push('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+  if (typeof QRCode === 'undefined') fb.push('https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js');
+  fb.forEach(u => { const s = document.createElement('script'); s.src = u; s.crossOrigin = 'anonymous'; document.head.appendChild(s); });
+});
+</script>
+<style>
+:root{--navy:#224269;--navy-deep:#18324F;--gold:#EDAE3C;--gold-soft:#F7E3BC;--cream:#FAF8F3;
+--ink:#1C2B3A;--line:#E5DFD2;--ok:#2E8B57;--warn:#C0392B;--r:14px;
+--indigo:#4338CA;--indigo-soft:rgba(79,70,229,.4);--indigo-line:rgba(67,56,202,.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun',sans-serif;background:var(--cream);color:var(--ink);font-size:16px;min-height:100dvh}
+h1,h2,h3,.num{font-family:'Bai Jamjuree','Sarabun',sans-serif}
+button{font-family:inherit;cursor:pointer;border:none}
+input,select,textarea{font-family:inherit;font-size:1rem}
+header.top{background:var(--cream);color:var(--ink);padding:.85rem 1.1rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+header.top h1{font-size:1.05rem;color:var(--ink)}
+header.top small{opacity:.6;display:block;font-size:.75rem}
+header.top a{margin-left:auto;color:var(--indigo);text-decoration:none;font-weight:700;font-size:.85rem;border:1.5px solid var(--indigo);border-radius:9px;padding:.4rem .8rem}
+nav.abar{background:#fff;border-bottom:1px solid var(--line);display:flex;overflow-x:auto;position:sticky;top:0;z-index:40}
+nav.abar button{background:none;padding:.75rem 1rem;font-size:.88rem;font-weight:600;color:#8A8272;white-space:nowrap;border-bottom:3px solid transparent}
+nav.abar button.on{color:var(--indigo);border-bottom-color:var(--indigo)}
+main{padding:1.1rem;max-width:1060px;margin:0 auto}
+.page{display:none}
+.page.on{display:block}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:1.1rem;margin-bottom:1rem}
+.card h2{color:var(--ink);font-size:1.1rem;margin-bottom:.8rem;border-bottom:2px solid var(--indigo);padding-bottom:.4rem;display:inline-block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+.field{margin-bottom:.7rem}
+.field label{display:block;font-size:.85rem;font-weight:600;color:var(--ink);margin-bottom:.25rem}
+.field input,.field select,.field textarea{width:100%;padding:.62rem .8rem;border:1.5px solid var(--line);border-radius:10px;background:#fff}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--indigo)}
+.rowbtns{display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap}
+.rowbtns button{padding:.65rem 1rem;border-radius:12px;font-weight:600;font-size:.92rem}
+.b-gold{background:var(--indigo);color:#fff}
+.b-navy{background:var(--indigo);color:#fff}
+.b-ghost{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.b-ok{background:var(--ok);color:#fff}
+.b-warn{background:#fff;border:1.5px solid var(--warn);color:var(--warn)}
+.mini{padding:.34rem .6rem;border-radius:8px;font-size:.78rem;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem;margin-bottom:1rem}
+@media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:.9rem 1rem}
+.stat .num{font-size:2.1rem;font-weight:700;color:var(--ink);line-height:1.1}
+.stat.gold .num{color:var(--indigo)}
+.stat small{color:#6B6455;font-size:.82rem}
+.bar-outer{background:var(--line);border-radius:99px;height:14px;overflow:hidden;margin:.4rem 0}
+.bar-in{background:var(--indigo);height:100%;border-radius:99px;transition:width .5s}
+.chart{display:flex;align-items:flex-end;gap:4px;height:130px;padding-top:.5rem}
+.chart .c{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;min-width:0}
+.chart .c i{display:block;width:100%;background:var(--indigo);border-radius:4px 4px 0 0;min-height:2px}
+.chart .c small{font-size:.62rem;color:#8A8272;white-space:nowrap}
+.bytype div{display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px dashed var(--line);font-size:.95rem}
+.tbl{width:100%;border-collapse:collapse;background:#fff;font-size:.88rem}
+.tbl th{background:var(--indigo);color:#fff;padding:.55rem .6rem;text-align:left;font-weight:600;white-space:nowrap}
+.tbl td{padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+.tag{display:inline-block;background:var(--indigo-line);color:var(--indigo);border-radius:6px;padding:0 .45rem;font-size:.72rem;font-weight:600}
+.tag.walkin{background:#E3ECF7;color:var(--navy)}
+.empty{padding:2rem 1rem;text-align:center;color:#8A8272;background:#fff;border:1.5px dashed var(--line);border-radius:var(--r)}
+.hint{font-size:.82rem;color:#8A8272;margin:.4rem 0 .8rem}
+.agrow{display:grid;grid-template-columns:92px 1fr 1fr 40px;gap:.5rem;margin-bottom:.5rem;align-items:center}
+.agrow input{padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:9px}
+.agrow button{background:none;color:var(--warn);font-weight:700;font-size:.85rem}
+.overlay{position:fixed;inset:0;background:rgba(28,43,58,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:1rem}
+.overlay.on{display:flex}
+.modal{background:#fff;border-radius:18px;padding:1.3rem;max-width:460px;width:100%;max-height:88dvh;overflow-y:auto}
+.modal h3{color:var(--ink);margin-bottom:.7rem}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:.6rem 1.2rem;border-radius:99px;font-size:.9rem;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+/* PIN gate */
+#gate{position:fixed;inset:0;background:var(--cream);display:flex;align-items:center;justify-content:center;z-index:500;padding:1rem}
+#gate .gbox{background:#fff;border:1px solid var(--line);border-radius:20px;padding:2rem 1.6rem;width:min(360px,100%);text-align:center;box-shadow:0 12px 34px rgba(67,56,202,.1)}
+#gate .gbox h2{color:var(--ink);margin:.6rem 0 .2rem}
+#gate input{width:100%;text-align:center;font-size:1.6rem;letter-spacing:.5rem;padding:.6rem;border:2px solid var(--indigo);border-radius:12px;margin:1rem 0;font-family:'Bai Jamjuree'}
+/* ผู้ช่วย */
+.chatbox{background:#fff;border:1px solid var(--line);border-radius:var(--r);height:380px;overflow-y:auto;padding:1rem;margin-bottom:.7rem}
+.msg{max-width:82%;padding:.55rem .85rem;border-radius:14px;margin-bottom:.55rem;font-size:.93rem;line-height:1.45;white-space:pre-wrap}
+.msg.u{background:var(--indigo);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+.msg.a{background:var(--indigo-line);border-bottom-left-radius:4px}
+.chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}
+.chips button{background:#fff;border:1.5px solid var(--line);border-radius:99px;padding:.3rem .75rem;font-size:.8rem}
+.askrow{display:flex;gap:.5rem}
+.askrow input{flex:1;padding:.7rem .9rem;border:2px solid var(--indigo);border-radius:12px}
+#badgeArea{display:none}
+@media print{body *{visibility:hidden}#badgeArea,#badgeArea *{visibility:visible}#badgeArea{display:block;position:fixed;inset:0}
+.badge{width:100mm;height:70mm;page-break-after:always;border:none;display:flex;flex-direction:column}}
+.badge{background:#fff;display:flex;flex-direction:column;overflow:hidden;font-family:'Sarabun',sans-serif}
+.badge .bh{background:#224269;color:#fff;padding:4mm 6mm;font-size:9pt;line-height:1.35}
+.badge .bh b{color:#EDAE3C;display:block;font-size:10pt}
+.badge .bm{flex:1;display:flex;align-items:center;padding:2mm 6mm;gap:4mm}
+.badge .bm .nm{flex:1}
+.badge .bm .nm b{font-size:20pt;font-family:'Bai Jamjuree';color:#18324F;display:block;line-height:1.15}
+.badge .bm .nm span{font-size:11pt;color:#444;display:block;margin-top:1mm}
+.badge .bf{background:#EDAE3C;color:#18324F;padding:1.8mm 6mm;font-weight:700;font-size:10pt;display:flex;justify-content:space-between}
+.qrsheet{display:grid;grid-template-columns:repeat(4,1fr);gap:4mm;padding:6mm;background:#fff}
+.qrsheet .qi{text-align:center;padding:3mm;border:.3mm dashed #999;font-size:9pt;page-break-inside:avoid}
+.qrsheet .qi b{display:block;font-size:10pt;margin-top:2mm}
+.qrsheet .qi img,.qrsheet .qi canvas{margin:0 auto}
+@media(min-width:1024px){main{max-width:1160px}}
+/* dashboard หลายอีเวนต์ */
+.evgrid{display:grid;grid-template-columns:1fr;gap:.8rem;margin-top:1rem}
+@media(min-width:700px){.evgrid{grid-template-columns:1fr 1fr}}
+@media(min-width:1024px){.evgrid{grid-template-columns:1fr 1fr 1fr}}
+.evcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:1.1rem;cursor:pointer;transition:border-color .15s}
+.evcard:hover{border-color:var(--indigo)}
+.evcard b{font-size:1.05rem;display:block;color:var(--ink)}
+.evcard small{color:#6B6455;font-size:.83rem;display:block;margin-top:.35rem}
+.evcard .cnt{margin-top:.6rem;font-size:.82rem;color:var(--indigo);font-weight:600}
+.evcard .evdel{margin-top:.7rem}
+.share-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.share-row input{flex:1;min-width:160px}
+</style>
+</head>
+<body>
+
+<div id="gate"><div class="gbox">
+  <h2>หลังบ้านผู้จัดงาน</h2>
+  <small style="color:#8A8272">ใส่รหัส PIN เพื่อเข้าจัดการระบบ</small>
+  <input id="pinIn" inputmode="numeric" maxlength="8" placeholder="••••">
+  <button class="b-navy" style="width:100%;padding:.8rem;border-radius:12px;font-weight:700" id="btnPin">เข้าสู่ระบบ</button>
+  <p class="hint" id="pinMsg" style="margin-top:.6rem"></p>
+</div></div>
+
+<header class="top">
+  <div><h1 id="hTitle">หลังบ้านผู้จัดงาน</h1><small id="hEv"></small></div>
+  <a href="index.html" id="toCheckinLink" style="display:none">ไปหน้าเช็คอิน</a>
+</header>
+<nav class="abar">
+  <button data-pg="home" class="on">งานทั้งหมด</button>
+  <button data-pg="over" class="evtab">ภาพรวม</button>
+  <button data-pg="list" class="evtab">รายชื่อ</button>
+  <button data-pg="event" class="evtab">ข้อมูลงาน</button>
+  <button data-pg="ask" class="evtab">ผู้ช่วยถามตอบ</button>
+  <button data-pg="crm">ฐานผู้ติดต่อ</button>
+  <button data-pg="data" class="evtab">สำรองข้อมูล</button>
+</nav>
+<main>
+
+<!-- ===== งานทั้งหมด (dashboard) ===== -->
+<section class="page on" id="pg-home">
+  <div class="card">
+    <h2>สร้างงานใหม่</h2>
+    <div class="grid3">
+      <div class="field"><label>ชื่องาน</label><input id="new-ev-name" placeholder="เช่น งานสัมมนาประจำปี 2569"></div>
+      <div class="field"><label>วันที่จัดงาน</label><input id="new-ev-date" placeholder="เช่น 15 ต.ค. 2569"></div>
+      <div class="field"><label>สถานที่</label><input id="new-ev-venue" placeholder="เช่น โรงแรม..."></div>
+    </div>
+    <button class="b-navy" id="btnNewEvent">สร้างงาน</button>
+  </div>
+  <div id="evList"></div>
+</section>
+
+<!-- ===== ภาพรวม ===== -->
+<section class="page" id="pg-over">
+  <div class="stats">
+    <div class="stat"><div class="num" id="s-total">0</div><small>ลงทะเบียนทั้งหมด</small></div>
+    <div class="stat gold"><div class="num" id="s-in">0</div><small>เช็คอินแล้ว</small></div>
+    <div class="stat"><div class="num" id="s-walkin">0</div><small>Walk-in</small></div>
+    <div class="stat"><div class="num" id="s-pct">0%</div><small>อัตราเข้างาน</small></div>
+  </div>
+  <div class="card"><h2>ความคืบหน้าการเช็คอิน</h2>
+    <div class="bar-outer"><div class="bar-in" id="bar" style="width:0%"></div></div>
+    <small class="hint" id="barLabel"></small></div>
+  <div class="grid2">
+    <div class="card"><h2>เช็คอินรายช่วงเวลา</h2><div class="chart" id="chart"></div></div>
+    <div class="card"><h2>แยกตามประเภท</h2><div class="bytype" id="bytype"></div></div>
+  </div>
+  <div class="card"><h2>หน่วยงานที่มาร่วมมากที่สุด</h2><div class="bytype" id="byorg"></div></div>
+  <div class="card"><h2>แชร์ให้ลูกค้า</h2>
+    <p class="hint" style="margin-top:0">ลิงก์นี้เปิดดูได้ทันทีโดยไม่ต้องใส่ PIN แสดงสถิติเรียลไทม์ (ไม่มีรายชื่อ/ข้อมูลส่วนตัวผู้เข้าร่วม)</p>
+    <div class="share-row">
+      <input id="reportLink" readonly>
+      <button type="button" class="b-ghost mini" id="btnCopyLink">คัดลอกลิงก์</button>
+      <button type="button" class="b-ghost mini" id="btnDlExcelClient">ดาวน์โหลด Excel สรุปให้ลูกค้า</button>
+    </div>
+    <div class="share-row" style="margin-top:.7rem">
+      <input id="clientEmail" placeholder="อีเมลลูกค้า เช่น client@company.com">
+      <button type="button" class="b-navy mini" id="btnSendReport">ส่งลิงก์รายงานให้ลูกค้าทางอีเมล</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== รายชื่อ ===== -->
+<section class="page" id="pg-list">
+  <div class="rowbtns">
+    <button class="b-gold" id="btnAdd">เพิ่มรายชื่อ</button>
+    <button class="b-navy" id="btnImport">นำเข้า Excel</button>
+    <button class="b-ghost" id="btnExport">ส่งออก Excel</button>
+    <button class="b-ghost" id="btnCsv">ส่งออก CSV</button>
+    <button class="b-ghost" id="btnTemplate">ไฟล์ต้นแบบ</button>
+    <button class="b-ghost" id="btnMock">Generate รายชื่อตัวอย่าง</button>
+    <button class="b-ghost" id="btnQrSheet">พิมพ์ QR ทั้งชุด</button>
+    <button class="b-gold" id="btnMailAll">ส่งอีเมล QR ทั้งหมด</button>
+    <input id="listQ" type="search" placeholder="กรองรายชื่อ…" style="flex:1;min-width:170px;padding:.6rem .8rem;border:1.5px solid var(--line);border-radius:12px">
+  </div>
+  <input type="file" id="fileIn" accept=".xlsx,.xls,.csv" style="display:none">
+  <p class="hint">คอลัมน์นำเข้า: คำนำหน้า / ชื่อ / นามสกุล / หน่วยงาน / ตำแหน่ง / ประเภท / เบอร์โทร / อีเมล</p>
+  <div class="tblwrap"><table class="tbl"><thead><tr>
+    <th>ชื่อ-นามสกุล</th><th>หน่วยงาน</th><th>สถานะ</th><th>จัดการ</th>
+  </tr></thead><tbody id="listBody"></tbody></table></div>
+</section>
+
+<!-- ===== ข้อมูลงาน ===== -->
+<section class="page" id="pg-event">
+  <div class="card"><h2>รายละเอียดงาน (แสดงที่หน้างานทันทีเมื่อบันทึก)</h2>
+    <div class="field"><label>โลโก้งาน / หน่วยงาน (แสดงที่หน้าเช็คอิน)</label>
+      <div style="display:flex;align-items:center;gap:.8rem;flex-wrap:wrap">
+        <div id="logoPreviewWrap" style="display:none;background:#fff;border:1px solid var(--line);border-radius:10px;padding:.5rem .8rem">
+          <img id="logoPreview" style="max-height:44px;max-width:180px;display:block">
+        </div>
+        <button type="button" class="b-ghost mini" id="btnLogoPick">อัปโหลดโลโก้</button>
+        <button type="button" class="b-ghost mini" id="btnLogoRemove" style="display:none">ลบโลโก้</button>
+        <input type="file" id="logoFileIn" accept="image/*" style="display:none">
+      </div>
+      <p class="hint" style="margin:.4rem 0 0">รองรับ PNG/JPG พื้นหลังโปร่งใสได้ ระบบจะย่อขนาดให้อัตโนมัติ — ถ้าไม่อัปโหลด หน้าเช็คอินจะไม่แสดงโลโก้ใดๆ</p>
+    </div>
+    <div class="field"><label>ชื่องาน (ไทย)</label><input id="set-name"></div>
+    <div class="grid2">
+      <div class="field"><label>ชื่องาน (English) — ใส่เมื่อมีชื่อทางการ ไม่งั้นใช้ชื่อไทยแทน</label><input id="set-name-en"></div>
+      <div class="field"><label>ชื่องาน (中文) — 可选，留空则显示泰文名称</label><input id="set-name-zh"></div>
+    </div>
+    <div class="field"><label>ชื่อรอง / คำอธิบายงาน</label><input id="set-sub"></div>
+    <div class="grid2">
+      <div class="field"><label>วันที่จัดงาน</label><input id="set-date"></div>
+      <div class="field"><label>สถานที่</label><input id="set-venue"></div>
+    </div>
+    <div class="field"><label>ชื่อผู้จัด (แสดงบน badge)</label><input id="set-org"></div>
+  </div>
+  <div class="card"><h2>กำหนดการ (Agenda)</h2>
+    <div id="agRows"></div>
+    <button class="b-ghost mini" id="btnAgAdd">เพิ่มช่วงเวลา</button>
+  </div>
+  <div class="card"><h2>ระบบ</h2>
+    <div class="field"><label>Webhook อีเมลยืนยัน (Google Apps Script)</label><input id="set-hook" placeholder="https://script.google.com/macros/s/…/exec">
+      <p class="hint" style="margin:.3rem 0 0">ยังไม่ได้ตั้งค่า? <a href="setup-email.html" style="color:var(--navy);font-weight:600">เปิดตัวช่วยเชื่อมต่อระบบอีเมล</a></p></div>
+  </div>
+  <div class="rowbtns"><button class="b-navy" id="btnSaveSet" style="flex:1">บันทึกข้อมูลงานทั้งหมด</button></div>
+</section>
+
+<!-- ===== ผู้ช่วยถามตอบ ===== -->
+<section class="page" id="pg-ask">
+  <p class="hint">ถามข้อมูลงานเป็นภาษาไทยได้เลย เช่น สถิติ ยอดเช็คอิน หรือค้นชื่อผู้เข้างาน (ประมวลผลในเครื่อง ไม่ส่งข้อมูลออก)</p>
+  <div class="chips" id="chips"></div>
+  <div class="chatbox" id="chat"></div>
+  <div class="askrow">
+    <input id="askIn" placeholder="เช่น ตอนนี้เช็คอินแล้วกี่คน / นพ.สมชาย มาหรือยัง">
+    <button class="b-gold" id="btnAsk" style="padding:.7rem 1.2rem;border-radius:12px;font-weight:700">ถาม</button>
+  </div>
+</section>
+
+<!-- ===== ฐานผู้ติดต่อ / ประวัติงาน ===== -->
+<section class="page" id="pg-crm">
+  <div class="card"><h2>ปิดงานปัจจุบันและจัดเก็บ</h2>
+    <p class="hint">เมื่อจบงาน กด "ปิดงานและจัดเก็บ" ระบบจะบันทึกสรุปงานเข้าประวัติ และรวมรายชื่อเข้าฐานผู้ติดต่อเพื่อติดตามประวัติการเข้าร่วมข้ามงาน (แบบ CRM) จากนั้นเคลียร์รายชื่อเพื่อเริ่มงานใหม่</p>
+    <button class="b-navy" id="btnArchive">ปิดงานและจัดเก็บ</button>
+  </div>
+  <div class="card"><h2>ประวัติงานที่ผ่านมา</h2><div id="histBox"></div></div>
+  <div class="card"><h2>ฐานผู้ติดต่อสะสม (Contact Hub)</h2>
+    <div class="rowbtns">
+      <button class="b-ghost mini" id="btnCtcExport">ส่งออกฐานผู้ติดต่อ</button>
+      <label style="font-size:.85rem;display:flex;align-items:center;gap:.3rem"><input type="checkbox" id="ctcRepeat" style="width:auto"> เฉพาะผู้เข้าร่วมมากกว่า 1 งาน</label>
+    </div>
+    <div class="tblwrap"><table class="tbl"><thead><tr><th>ชื่อ</th><th>หน่วยงาน</th><th>อีเมล</th><th>จำนวนงานที่เข้าร่วม</th></tr></thead><tbody id="ctcBody"></tbody></table></div>
+  </div>
+</section>
+
+<!-- ===== สำรองข้อมูล ===== -->
+<section class="page" id="pg-data">
+  <div class="card"><h2>สำรอง / กู้คืนข้อมูล</h2>
+    <p class="hint">ไฟล์สำรองรวมข้อมูลงาน รายชื่อ ประวัติงาน และฐานผู้ติดต่อทั้งหมด — ควรสำรองก่อนจบงานทุกครั้ง</p>
+    <div class="rowbtns">
+      <button class="b-navy" id="btnBackup">ดาวน์โหลดไฟล์สำรอง (.json)</button>
+      <button class="b-ghost" id="btnRestore">กู้คืนจากไฟล์สำรอง</button>
+      <input type="file" id="bakIn" accept=".json" style="display:none">
+    </div>
+  </div>
+  <div class="card"><h2>ล้างข้อมูล</h2>
+    <div class="rowbtns">
+      <button class="b-warn" id="btnWipeAtt">ล้างรายชื่องานปัจจุบัน</button>
+      <button class="b-warn" id="btnWipeAll">ล้างข้อมูลทั้งหมด (รวมประวัติ)</button>
+    </div>
+  </div>
+</section>
+
+</main>
+<div class="toast" id="toast"></div>
+
+<!-- modal แก้ไข/เพิ่มรายชื่อ -->
+<div class="overlay" id="ovEdit"><div class="modal">
+  <h3 id="edTitle">เพิ่มรายชื่อ</h3>
+  <div class="grid2">
+    <div class="field"><label>คำนำหน้า</label>
+      <select id="e-prefix"><option>นพ.</option><option>พญ.</option><option>ภญ.</option><option>ภก.</option><option>ศ.</option><option>รศ.</option><option>ผศ.</option><option>ดร.</option><option>นาย</option><option>นาง</option><option>นางสาว</option><option value="">— ไม่ระบุ —</option></select></div>
+    <div class="field"><label>ประเภท</label>
+      <select id="e-type"><option>แพทย์</option><option>พยาบาล</option><option>เภสัชกร</option><option>บุคลากรสาธารณสุข</option><option>ผู้บริหาร/หน่วยงานรัฐ</option><option>สื่อมวลชน</option><option>เจ้าหน้าที่จัดงาน</option><option>อื่นๆ</option></select></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>ชื่อ *</label><input id="e-first"></div>
+    <div class="field"><label>นามสกุล</label><input id="e-last"></div>
+  </div>
+  <div class="field"><label>หน่วยงาน</label><input id="e-org"></div>
+  <div class="grid2">
+    <div class="field"><label>ตำแหน่ง</label><input id="e-pos"></div>
+    <div class="field"><label>เบอร์โทร</label><input id="e-phone"></div>
+  </div>
+  <div class="field"><label>อีเมล</label><input id="e-email"></div>
+  <div class="rowbtns" style="margin:0">
+    <button class="b-ok" id="btnEdSave" style="flex:1">บันทึก</button>
+    <button class="b-ghost" id="btnEdClose">ยกเลิก</button>
+  </div>
+</div></div>
+
+<!-- modal QR -->
+<div class="overlay" id="ovQr"><div class="modal" style="text-align:center">
+  <h3 id="qrName"></h3>
+  <div id="qrBox" style="display:inline-block;padding:12px;background:#fff"></div>
+  <p class="hint" id="qrCode"></p>
+  <div class="rowbtns" style="justify-content:center"><button class="b-ghost" id="btnQrClose">ปิด</button></div>
+</div></div>
+<div id="badgeArea"></div>
+<script>
+/* ========= Data Layer (คีย์เดียวกับ index.html) ========= */
+const EVENT_ID = new URLSearchParams(location.search).get('event');
+const K = EVENT_ID
+  ? { set:'phc_settings_'+EVENT_ID, att:'phc_attendees_'+EVENT_ID, hist:'phc_history_'+EVENT_ID, ctc:'phc_contacts' }
+  : { set:'phc_settings', att:'phc_attendees', hist:'phc_history', ctc:'phc_contacts' };
+const store = (() => {
+  let mem = {}, hasLS = false;
+  try { localStorage.setItem('__t','1'); localStorage.removeItem('__t'); hasLS = true; } catch(e){}
+  return {
+    get(k,d){ try{ const v = hasLS ? localStorage.getItem(k) : mem[k]; return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+    set(k,v){ const s = JSON.stringify(v); if(hasLS){ try{ localStorage.setItem(k,s); }catch(e){ mem[k]=s; } } else mem[k]=s; },
+    del(k){ if(hasLS) localStorage.removeItem(k); delete mem[k]; },
+    persistent: hasLS
+  };
+})();
+const DEF_SET = {
+  name:'งานลงทะเบียน', sub:'', date:'', venue:'',
+  org:'Professor Healthcare Co., Ltd.', hook:'', pin:'1234', agenda:[]
+};
+let settings = Object.assign({}, DEF_SET, store.get(K.set, {}));
+let attendees = store.get(K.att, []);
+let history = store.get(K.hist, []);
+let contacts = store.get(K.ctc, []);
+if (!Array.isArray(attendees)) attendees = [];
+if (!Array.isArray(history)) history = [];
+if (!Array.isArray(contacts)) contacts = [];
+if (!Array.isArray(settings.agenda)) settings.agenda = [];
+const saveAtt = () => store.set(K.att, attendees);
+const saveSet = () => store.set(K.set, settings);
+const uid = () => 'A' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase();
+const fullName = a => [a.prefix, a.first, ' ', a.last].filter(Boolean).join('').replace('  ',' ').trim() || '(ไม่มีชื่อ)';
+const $ = id => document.getElementById(id);
+const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtTime = iso => iso ? new Date(iso).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}) + ' น.' : '';
+
+/* ========= ซิงก์กับฐานข้อมูลกลาง (Cloudflare KV ผ่าน /api/*) =========
+   ทุกอุปกรณ์ (มือถือ/ipad ของทีมงาน) อ่าน-เขียนชุดข้อมูลเดียวกัน
+   ถ้าเรียก API ไม่ได้ (ออฟไลน์/ยังไม่ผูก KV) จะยังทำงานจากข้อมูลในเครื่องได้ตามปกติ */
+let apiOk = false, apiWarned = false;
+function withEvent(path){ if (!EVENT_ID) return path; return path + (path.includes('?') ? '&' : '?') + 'event=' + encodeURIComponent(EVENT_ID); }
+async function apiGet(path){ try{ const r = await fetch('/api'+path, { cache:'no-store' }); if(!r.ok) return undefined; return await r.json(); }catch(e){ return undefined; } }
+async function apiSend(path, method, body){ try{ const r = await fetch('/api'+path, { method, headers:{'Content-Type':'application/json'}, body: body!==undefined?JSON.stringify(body):undefined }); return r.ok; }catch(e){ return false; } }
+async function pushAttendee(a){ if (await apiSend(withEvent('/attendees'),'POST', a)) apiOk = true; }
+async function deleteAttendeeRemote(id){ if (await apiSend(withEvent('/attendees?id='+encodeURIComponent(id)),'DELETE')) apiOk = true; }
+async function pushSettings(){ if (await apiSend(withEvent('/settings'),'POST', settings)) apiOk = true; }
+async function pushMany(list){ await Promise.all(list.map(a => apiSend(withEvent('/attendees'),'POST', a))); apiOk = true; }
+let syncTimer = null;
+async function pollSync(){
+  if (!EVENT_ID) return;
+  const [s, a] = await Promise.all([apiGet(withEvent('/settings')), apiGet(withEvent('/attendees'))]);
+  if (s === undefined && a === undefined) {
+    if (!apiWarned) { apiWarned = true; toast('เชื่อมฐานข้อมูลกลางไม่ได้ — ใช้ข้อมูลในเครื่องนี้ไปก่อน (ตรวจสอบว่าผูก KV แล้วหรือยัง)'); }
+    return;
+  }
+  apiOk = true;
+  let needList = false, needOver = false;
+  if (s) { settings = Object.assign({}, DEF_SET, s); store.set(K.set, settings); if ($('pg-event').classList.contains('on')) loadSet(); $('hEv').textContent = settings.name; }
+  if (a) { attendees = a; store.set(K.att, attendees); needList = true; needOver = true; }
+  if (needOver && $('pg-over').classList.contains('on')) renderOver();
+  if (needList && $('pg-list').classList.contains('on')) renderList();
+}
+function startSync(){
+  pollSync();
+  clearInterval(syncTimer);
+  syncTimer = setInterval(pollSync, 5000);
+}
+
+window.addEventListener('storage', e => {
+  if (e.key === K.att) { attendees = store.get(K.att, []); renderOver(); renderList(); }
+  if (e.key === K.set) { settings = Object.assign({}, DEF_SET, store.get(K.set, {})); $('hEv').textContent = settings.name; }
+});
+
+let toastT;
+function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2400); }
+
+/* ========= PIN gate (ใช้ร่วมกันทุกอีเวนต์) ========= */
+let ADMIN_PIN = store.get('admin_pin_cache', '1234');
+const pinReady = (async () => {
+  try {
+    const r = await fetch('/api/pin', { cache:'no-store' });
+    if (r.ok) { const d = await r.json(); ADMIN_PIN = d.pin || '1234'; store.set('admin_pin_cache', ADMIN_PIN); }
+  } catch(e){}
+})();
+async function tryPin(){
+  await pinReady;
+  if ($('pinIn').value === ADMIN_PIN) { $('gate').style.display = 'none'; try{ sessionStorage.setItem('phc_admin_unlocked','1'); }catch(e){} }
+  else { $('pinMsg').textContent = 'PIN ไม่ถูกต้อง ลองอีกครั้ง'; $('pinIn').value=''; }
+}
+$('btnPin').onclick = tryPin;
+$('pinIn').addEventListener('keydown', e => { if (e.key === 'Enter') tryPin(); });
+(async () => {
+  let alreadyUnlocked = false;
+  try { alreadyUnlocked = sessionStorage.getItem('phc_admin_unlocked') === '1'; } catch(e){}
+  if (alreadyUnlocked) { await pinReady; $('gate').style.display = 'none'; }
+})();
+
+/* ========= นำทาง ========= */
+document.querySelectorAll('nav.abar button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav.abar button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('on', p.id === 'pg-' + b.dataset.pg));
+  if (b.dataset.pg === 'home') renderEvList();
+  if (b.dataset.pg === 'over') renderOver();
+  if (b.dataset.pg === 'list') renderList();
+  if (b.dataset.pg === 'crm') { renderHist(); renderCtc(); }
+});
+
+/* ========= จัดการหลายอีเวนต์ (dashboard) ========= */
+function applyEventMode(){
+  const hasEv = !!EVENT_ID;
+  document.querySelectorAll('nav.abar button.evtab').forEach(b => b.style.display = hasEv ? '' : 'none');
+  $('toCheckinLink').style.display = hasEv ? 'inline-block' : 'none';
+  if (hasEv) {
+    $('toCheckinLink').href = 'index.html?event=' + encodeURIComponent(EVENT_ID);
+    $('reportLink').value = location.origin + '/report.html?event=' + encodeURIComponent(EVENT_ID);
+  }
+  $('hTitle').textContent = hasEv ? 'จัดการงาน' : 'หลังบ้านผู้จัดงาน';
+  if (!hasEv) $('hEv').textContent = 'ภาพรวมทุกงานในระบบ';
+}
+async function renderEvList(){
+  $('evList').innerHTML = '<p class="hint">กำลังโหลด…</p>';
+  let list = [];
+  try { const r = await fetch('/api/events-summary', { cache:'no-store' }); if (r.ok) list = await r.json(); } catch(e){}
+  $('evList').innerHTML = list.length
+    ? '<div class="evgrid">' + list.map(e => {
+        const pct = e.total ? Math.round(e.checked/e.total*100) : 0;
+        return '<div class="evcard">'
+          + '<div data-act="openev" data-id="' + e.id + '">'
+          + '<b>' + esc(e.name) + '</b>'
+          + '<small>' + esc([e.date, e.venue].filter(Boolean).join(' · ')) + '</small>'
+          + '<div class="cnt">เช็คอินแล้ว ' + e.checked + ' / ' + e.total + ' คน (' + pct + '%)</div>'
+          + '</div>'
+          + '<button type="button" class="mini b-warn evdel" data-act="delev" data-id="' + e.id + '">ลบงานนี้</button>'
+          + '</div>';
+      }).join('') + '</div>'
+    : '<div class="empty">ยังไม่มีงานในระบบ — สร้างงานใหม่ด้านบน</div>';
+}
+$('btnNewEvent').onclick = async () => {
+  const name = $('new-ev-name').value.trim();
+  if (!name) { toast('กรุณากรอกชื่องาน'); return; }
+  const date = $('new-ev-date').value.trim(), venue = $('new-ev-venue').value.trim();
+  try {
+    const r = await fetch('/api/events', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, date, venue }) });
+    if (!r.ok) throw new Error('bad status');
+    const created = await r.json();
+    toast('สร้างงาน "' + name + '" แล้ว');
+    location.href = 'admin.html?event=' + encodeURIComponent(created.id);
+  } catch(e) {
+    toast('สร้างงานไม่สำเร็จ — ตรวจสอบว่าผูก KV แล้วหรือยัง');
+  }
+};
+async function deleteEvent(id, btn){
+  const name = btn.closest('.evcard').querySelector('b').textContent;
+  if (!confirm('ลบงาน "' + name + '" ทั้งหมด?\nข้อมูลผู้เข้าร่วมและกำหนดการของงานนี้จะหายไปถาวร')) return;
+  try { await fetch('/api/events?id=' + encodeURIComponent(id), { method:'DELETE' }); } catch(e){}
+  renderEvList();
+}
+
+/* ========= แชร์ให้ลูกค้า ========= */
+$('btnCopyLink').onclick = async () => {
+  try { await navigator.clipboard.writeText($('reportLink').value); toast('คัดลอกลิงก์แล้ว'); }
+  catch(e){ $('reportLink').select(); toast('เลือกลิงก์ให้แล้ว กด Cmd/Ctrl+C เพื่อคัดลอก'); }
+};
+$('btnDlExcelClient').onclick = () => { $('btnExport').click(); };
+$('btnSendReport').onclick = async () => {
+  const email = $('clientEmail').value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast('กรุณากรอกอีเมลลูกค้าให้ถูกต้อง'); return; }
+  if (!settings.hook) {
+    if (confirm('ยังไม่ได้เชื่อมต่อระบบอีเมล\n\nเปิดหน้าตัวช่วยตั้งค่าเลยไหม?')) location.href = 'setup-email.html';
+    return;
+  }
+  const link = $('reportLink').value;
+  const subject = 'รายงานสถานะลงทะเบียน (เรียลไทม์) — ' + settings.name;
+  const body = 'เรียนลูกค้า\n\nท่านสามารถตรวจสอบสถานะการลงทะเบียนและเช็คอินของงาน "' + settings.name + '" ได้แบบเรียลไทม์ตลอดเวลา ผ่านลิงก์ด้านล่าง (ไม่ต้องใช้รหัสผ่าน)\n\n'
+    + link + '\n\nขอแสดงความนับถือ\n' + (settings.org || '');
+  try {
+    await fetch(settings.hook, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({ to: email, subject, body, from: settings.org }) });
+    toast('ส่งลิงก์รายงานถึง ' + email + ' แล้ว');
+    $('clientEmail').value = '';
+  } catch(e) {
+    alert('ส่งผ่าน Webhook ไม่สำเร็จ: ' + e);
+  }
+};
+
+/* ========= ภาพรวม / Insights ========= */
+function renderOver(){
+  const total = attendees.length, inn = attendees.filter(a=>a.in).length,
+        walk = attendees.filter(a=>a.src==='walkin').length,
+        pct = total ? Math.round(inn/total*100) : 0;
+  $('s-total').textContent = total; $('s-in').textContent = inn;
+  $('s-walkin').textContent = walk; $('s-pct').textContent = pct + '%';
+  $('bar').style.width = pct + '%';
+  $('barLabel').textContent = 'เช็คอินแล้ว ' + inn + ' จาก ' + total + ' คน · ยังไม่มา ' + (total-inn) + ' คน';
+  const slots = {};
+  attendees.filter(a => a.in && a.time).forEach(a => {
+    const d = new Date(a.time);
+    const k = d.getHours().toString().padStart(2,'0') + ':' + (d.getMinutes()<30 ? '00' : '30');
+    slots[k] = (slots[k]||0) + 1;
+  });
+  const keys = Object.keys(slots).sort(), max = Math.max(1, ...Object.values(slots));
+  $('chart').innerHTML = keys.length
+    ? keys.map(k => '<div class="c"><small>' + slots[k] + '</small><i style="height:' + Math.round(slots[k]/max*95) + 'px"></i><small>' + k + '</small></div>').join('')
+    : '<div class="empty">ยังไม่มีการเช็คอิน</div>';
+  const types = {};
+  attendees.forEach(a => { const t = a.type || 'อื่นๆ'; types[t] = types[t] || {n:0,i:0}; types[t].n++; if (a.in) types[t].i++; });
+  $('bytype').innerHTML = Object.entries(types).map(([t,v]) => '<div><span>' + esc(t) + '</span><b>' + v.i + ' / ' + v.n + '</b></div>').join('') || '<p class="hint">ยังไม่มีข้อมูล</p>';
+  const orgs = {};
+  attendees.forEach(a => { if (a.org) { orgs[a.org] = orgs[a.org] || {n:0,i:0}; orgs[a.org].n++; if (a.in) orgs[a.org].i++; } });
+  $('byorg').innerHTML = Object.entries(orgs).sort((x,y) => y[1].n - x[1].n).slice(0,8)
+    .map(([o,v]) => '<div><span>' + esc(o) + '</span><b>มา ' + v.i + ' / ลงทะเบียน ' + v.n + '</b></div>').join('') || '<p class="hint">ยังไม่มีข้อมูล</p>';
+}
+
+
+/* ========= รายชื่อ: CRUD ========= */
+let editId = null;
+$('listQ').addEventListener('input', renderList);
+function renderList(){
+  const q = $('listQ').value.trim().toLowerCase();
+  const rows = attendees.filter(a => !q || (a.first+' '+a.last+' '+(a.org||'')+' '+(a.email||'')).toLowerCase().includes(q));
+  $('listBody').innerHTML = rows.map(a =>
+    '<tr><td><b>' + esc(fullName(a)) + '</b><br><small><span class="tag' + (a.src==='walkin'?' walkin':'') + '">' + (a.src==='walkin'?'Walk-in':'ล่วงหน้า') + '</span> ' + esc(a.type||'') + '</small></td>'
+    + '<td>' + esc(a.org||'—') + '<br><small>' + esc(a.email||'') + '</small></td>'
+    + '<td>' + (a.in ? 'เช็คอิน ' + fmtTime(a.time) : '<small>ยังไม่เช็คอิน</small>') + (a.sent ? '<br><small style="color:var(--ok)">ส่ง QR แล้ว</small>' : '') + '</td>'
+    + '<td style="white-space:nowrap">'
+    + '<button type="button" class="mini b-ghost" data-act="edit" data-id="' + a.id + '">แก้ไข</button> '
+    + '<button type="button" class="mini b-ghost" data-act="qr" data-id="' + a.id + '">QR</button> '
+    + '<button type="button" class="mini b-ghost" data-act="badge" data-id="' + a.id + '">พิมพ์ป้าย</button> '
+    + (a.email ? '<button type="button" class="mini b-navy" data-act="mail" data-id="' + a.id + '">ส่งเมล</button> ' : '')
+    + '<button type="button" class="mini b-warn" data-act="del" data-id="' + a.id + '">ลบ</button></td></tr>').join('')
+    || '<tr><td colspan="4"><div class="empty">ยังไม่มีรายชื่อ — กด "เพิ่มรายชื่อ" หรือ "นำเข้า Excel"</div></td></tr>';
+}
+function openEdit(id){
+  editId = id || null;
+  const a = id ? attendees.find(x => x.id === id) : null;
+  $('edTitle').textContent = a ? 'แก้ไขรายชื่อ' : 'เพิ่มรายชื่อ';
+  $('e-prefix').value = a ? a.prefix : 'นพ.'; $('e-type').value = a ? (a.type||'อื่นๆ') : 'แพทย์';
+  $('e-first').value = a ? a.first : ''; $('e-last').value = a ? a.last : '';
+  $('e-org').value = a ? (a.org||'') : ''; $('e-pos').value = a ? (a.pos||'') : '';
+  $('e-phone').value = a ? (a.phone||'') : ''; $('e-email').value = a ? (a.email||'') : '';
+  $('ovEdit').classList.add('on');
+}
+$('btnAdd').onclick = () => openEdit(null);
+$('btnEdClose').onclick = () => $('ovEdit').classList.remove('on');
+$('btnEdSave').onclick = () => {
+  const first = $('e-first').value.trim();
+  if (!first) { toast('กรุณากรอกชื่อ'); return; }
+  const vals = { prefix:$('e-prefix').value, first, last:$('e-last').value.trim(), org:$('e-org').value.trim(),
+    pos:$('e-pos').value.trim(), type:$('e-type').value, phone:$('e-phone').value.trim(), email:$('e-email').value.trim() };
+  let rec;
+  if (editId) { rec = attendees.find(x => x.id === editId); Object.assign(rec, vals); }
+  else { rec = Object.assign({ id: uid(), src:'pre', in:false, time:null }, vals); attendees.push(rec); }
+  saveAtt(); renderList(); renderOver(); $('ovEdit').classList.remove('on');
+  pushAttendee(rec);
+  toast(editId ? 'แก้ไขเรียบร้อย' : 'เพิ่มรายชื่อเรียบร้อย');
+};
+function delA(id){
+  const a = attendees.find(x => x.id === id); if (!a) return;
+  if (!confirm('ลบ ' + fullName(a) + ' ออกจากรายชื่อ?')) return;
+  attendees = attendees.filter(x => x.id !== id); saveAtt(); renderList(); renderOver();
+  deleteAttendeeRemote(id);
+}
+function showQr(id){
+  const a = attendees.find(x => x.id === id); if (!a) return;
+  $('qrName').textContent = fullName(a); $('qrCode').textContent = 'รหัส: ' + a.id;
+  $('qrBox').innerHTML = '';
+  if (typeof QRCode === 'undefined') {
+    $('qrBox').innerHTML = '<p class="hint">ไลบรารี QR ยังโหลดไม่สำเร็จ — ใช้รหัสด้านล่างพิมพ์เช็คอินที่หน้างานได้</p>';
+    $('ovQr').classList.add('on'); return;
+  }
+  new QRCode($('qrBox'), { text:'REG:' + a.id, width:190, height:190, colorDark:'#18324F' });
+  $('ovQr').classList.add('on');
+}
+$('btnQrClose').onclick = () => $('ovQr').classList.remove('on');
+function badgeHTML(a, qhtml){
+  return '<div class="badge">'
+    + '<div class="bh"><b>' + esc(settings.name) + '</b>' + esc([settings.date,settings.venue].filter(Boolean).join(' · ')) + '</div>'
+    + '<div class="bm"><div class="nm"><b>' + esc(fullName(a)) + '</b><span>' + esc([a.pos,a.org].filter(Boolean).join(' · ') || ' ') + '</span></div><div>' + qhtml + '</div></div>'
+    + '<div class="bf"><span>' + esc(a.type||'ผู้เข้าร่วมงาน') + '</span><span>' + esc(settings.org) + '</span></div></div>';
+}
+function printBadge(id){
+  const a = attendees.find(x => x.id === id); if (!a) return;
+  if (typeof QRCode === 'undefined') { $('badgeArea').innerHTML = badgeHTML(a, ''); window.print(); return; }
+  const qdiv = document.createElement('div');
+  new QRCode(qdiv, { text:'REG:' + a.id, width:90, height:90, colorDark:'#18324F' });
+  setTimeout(() => {
+    const img = qdiv.querySelector('img, canvas');
+    const qhtml = img ? (img.tagName==='IMG' ? img.outerHTML : '<img src="' + img.toDataURL() + '" width="90" height="90">') : '';
+    $('badgeArea').innerHTML = badgeHTML(a, qhtml);
+    window.print();
+  }, 120);
+}
+
+/* ========= Excel ========= */
+const HEAD = ['คำนำหน้า','ชื่อ','นามสกุล','หน่วยงาน','ตำแหน่ง','ประเภท','เบอร์โทร','อีเมล'];
+function dlBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url; link.download = filename; link.rel = 'noopener';
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  setTimeout(() => { document.body.removeChild(link); URL.revokeObjectURL(url); }, 1500);
+}
+const needXLSX = () => { if (typeof XLSX === 'undefined') { alert('ไลบรารี Excel ยังโหลดไม่สำเร็จ — ตรวจสอบอินเทอร์เน็ตแล้วรีเฟรชหน้า'); return true; } return false; };
+$('btnImport').onclick = () => { if (needXLSX()) return; $('fileIn').click(); };
+$('fileIn').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const wb = XLSX.read(ev.target.result, { type:'array' });
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval:'' });
+      let n = 0, dup = 0;
+      rows.forEach(row => {
+        const g = k => String(row[k] ?? '').trim();
+        const first = g('ชื่อ') || g('Name') || g('ชื่อ-นามสกุล').split(' ')[0];
+        if (!first) return;
+        const last = g('นามสกุล'), email = g('อีเมล');
+        if (attendees.some(a => (email && a.email && a.email.toLowerCase() === email.toLowerCase()) || (a.first === first && a.last === last && last))) { dup++; return; }
+        attendees.push({ id: uid(), prefix:g('คำนำหน้า'), first, last, org:g('หน่วยงาน'), pos:g('ตำแหน่ง'),
+          type:g('ประเภท')||'อื่นๆ', phone:g('เบอร์โทร'), email, src:'pre', in:false, time:null });
+        n++;
+      });
+      saveAtt(); renderList(); renderOver();
+      pushMany(attendees.slice(-n));
+      toast('นำเข้า ' + n + ' รายชื่อ' + (dup ? ' (ข้ามชื่อซ้ำ ' + dup + ')' : ''));
+    } catch(err){ alert('อ่านไฟล์ไม่ได้: ' + err); }
+    e.target.value = '';
+  };
+  r.readAsArrayBuffer(f);
+};
+$('btnExport').onclick = () => {
+  if (needXLSX()) return;
+  const data = [HEAD.concat(['สถานะ','เวลาเช็คอิน','ที่มา'])];
+  attendees.forEach(a => data.push([a.prefix,a.first,a.last,a.org,a.pos,a.type,a.phone,a.email,
+    a.in?'เช็คอินแล้ว':'ยังไม่เช็คอิน', a.in?new Date(a.time).toLocaleString('th-TH'):'', a.src==='walkin'?'Walk-in':'ลงทะเบียนล่วงหน้า']));
+  const ws = XLSX.utils.aoa_to_sheet(data); ws['!cols'] = data[0].map(() => ({wch:16}));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'รายชื่อ');
+  dlBlob(new Blob([XLSX.write(wb, { bookType:'xlsx', type:'array' })], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'รายชื่อผู้เข้างาน.xlsx');
+};
+$('btnTemplate').onclick = () => {
+  if (needXLSX()) return;
+  const ws = XLSX.utils.aoa_to_sheet([HEAD, ['นพ.','สมชาย','ใจดี','โรงพยาบาลตัวอย่าง','อายุรแพทย์','แพทย์','0812345678','somchai@example.com']]);
+  ws['!cols'] = HEAD.map(() => ({wch:16}));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Template');
+  dlBlob(new Blob([XLSX.write(wb, { bookType:'xlsx', type:'array' })], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'ต้นแบบรายชื่อลงทะเบียน.xlsx');
+};
+
+/* ========= อีเมลยืนยัน ========= */
+function qrDataUrl(a){
+  return new Promise(res => {
+    if (typeof QRCode === 'undefined') return res(null);
+    const d = document.createElement('div');
+    new QRCode(d, { text:'REG:' + a.id, width:220, height:220, colorDark:'#18324F' });
+    setTimeout(() => {
+      const img = d.querySelector('canvas, img');
+      try { res(img ? (img.tagName === 'CANVAS' ? img.toDataURL() : img.src) : null); } catch(e){ res(null); }
+    }, 90);
+  });
+}
+async function sendMail(id, silent){
+  const a = attendees.find(x => x.id === id); if (!a || !a.email) return false;
+  const subject = 'ยืนยันการลงทะเบียน — ' + settings.name;
+  const body = 'เรียน ' + fullName(a) + '\n\nขอยืนยันการลงทะเบียนเข้าร่วมงาน "' + settings.name + '"\n'
+    + 'วันที่: ' + settings.date + '\nสถานที่: ' + settings.venue + '\n\nรหัสเช็คอินของท่าน: ' + a.id
+    + '\nกรุณาแสดง QR Code ที่แนบมา หรือแจ้งชื่อที่จุดลงทะเบียนหน้างาน\n\nขอแสดงความนับถือ\n' + settings.org;
+  if (settings.hook) {
+    const qr = await qrDataUrl(a);
+    try {
+      await fetch(settings.hook, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'},
+        body: JSON.stringify({ to:a.email, subject, body, code:a.id, name:fullName(a), qr, from:settings.org }) });
+      a.sent = new Date().toISOString(); saveAtt(); renderList();
+      if (!silent) toast('ส่งอีเมลพร้อม QR ถึง ' + a.email + ' แล้ว');
+      return true;
+    } catch(e){ if (!silent) alert('ส่งผ่าน Webhook ไม่สำเร็จ: ' + e); return false; }
+  } else {
+    location.href = 'mailto:' + encodeURIComponent(a.email) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    return true;
+  }
+}
+$('btnMailAll').onclick = async () => {
+  if (!settings.hook) {
+    if (confirm('ยังไม่ได้เชื่อมต่อระบบอีเมล\n\nเปิดหน้าตัวช่วยตั้งค่าเลยไหม? (ใช้เวลาประมาณ 3 นาที ทำครั้งเดียวใช้ได้ตลอด)')) location.href = 'setup-email.html';
+    return;
+  }
+  const targets = attendees.filter(a => a.email && !a.sent);
+  if (!targets.length) { toast('ไม่มีรายชื่อที่รอส่ง (ไม่มีอีเมล หรือส่งครบแล้ว)'); return; }
+  if (!confirm('ส่งอีเมลยืนยันพร้อม QR Code ให้ ' + targets.length + ' คนที่ยังไม่ได้ส่ง?')) return;
+  let n = 0;
+  for (const a of targets) {
+    const ok = await sendMail(a.id, true);
+    if (ok) n++;
+    toast('กำลังส่ง… ' + n + '/' + targets.length);
+    await new Promise(r => setTimeout(r, 500));
+  }
+  toast('ส่งอีเมลพร้อม QR แล้ว ' + n + ' ฉบับ');
+};
+/* ========= CSV / Generate / QR sheet ========= */
+$('btnCsv').onclick = () => {
+  const rows = [HEAD.concat(['รหัสเช็คอิน','สถานะ','เวลาเช็คอิน','ที่มา','ส่งอีเมลแล้ว'])];
+  attendees.forEach(a => rows.push([a.prefix,a.first,a.last,a.org,a.pos,a.type,a.phone,a.email,a.id,
+    a.in?'เช็คอินแล้ว':'ยังไม่เช็คอิน', a.in?new Date(a.time).toLocaleString('th-TH'):'',
+    a.src==='walkin'?'Walk-in':'ล่วงหน้า', a.sent?'ใช่':'']));
+  const csv = '\uFEFF' + rows.map(r => r.map(c => '"' + String(c==null?'':c).replace(/"/g,'""') + '"').join(',')).join('\r\n');
+  dlBlob(new Blob([csv], { type:'text/csv;charset=utf-8' }), 'รายชื่อผู้เข้างาน.csv');
+  toast('ดาวน์โหลด CSV แล้ว — นำเข้ากลับได้ที่ปุ่ม "นำเข้า Excel"');
+};
+const MOCK_F = ['สมชาย','สุนีย์','วิชัย','อรทัย','ประเสริฐ','กมลชนก','ธนพล','ศิริพร','อนุชา','พิมพ์ใจ','ณัฐพงษ์','วราภรณ์','สุรศักดิ์','จินตนา','ปกรณ์','รุ่งนภา','เอกชัย','มัลลิกา','ชูชาติ','ดวงพร'];
+const MOCK_L = ['ใจดี','ศรีสุข','พงษ์พานิช','ทองดี','บุญมาก','แก้วใส','วัฒนกุล','สุขสันต์','อินทร์แปลง','เพชรรัตน์'];
+const MOCK_O = ['รพ.จุฬาลงกรณ์','รพ.ศิริราช','รพ.รามาธิบดี','กรมวิทยาศาสตร์การแพทย์','สปสช.','รพ.ราชวิถี','คณะแพทยศาสตร์ มช.','รพ.ขอนแก่น'];
+const MOCK_T = ['แพทย์','พยาบาล','เภสัชกร','บุคลากรสาธารณสุข','ผู้บริหาร/หน่วยงานรัฐ'];
+const MOCK_P = { 'แพทย์':['นพ.','พญ.'], 'เภสัชกร':['ภก.','ภญ.'], 'พยาบาล':['นาง','นางสาว'], 'บุคลากรสาธารณสุข':['นาย','นางสาว'], 'ผู้บริหาร/หน่วยงานรัฐ':['ดร.','นาย'] };
+$('btnMock').onclick = () => {
+  const n = parseInt(prompt('Generate รายชื่อตัวอย่างกี่คน? (สำหรับทดสอบระบบ)', '20'), 10);
+  if (!n || n < 1) return;
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  for (let i = 0; i < Math.min(n, 500); i++) {
+    const type = pick(MOCK_T), first = pick(MOCK_F), last = pick(MOCK_L);
+    attendees.push({ id: uid(), prefix: pick(MOCK_P[type]), first, last, org: pick(MOCK_O),
+      pos:'', type, phone: '08' + Math.floor(10000000 + Math.random()*89999999),
+      email: 'demo' + Date.now().toString(36) + i + '@example.com', src:'pre', in:false, time:null });
+  }
+  saveAtt(); renderList(); renderOver();
+  pushMany(attendees.slice(-Math.min(n,500)));
+  toast('Generate รายชื่อตัวอย่าง ' + Math.min(n,500) + ' คนแล้ว');
+};
+$('btnQrSheet').onclick = () => {
+  if (!attendees.length) { toast('ยังไม่มีรายชื่อ'); return; }
+  if (typeof QRCode === 'undefined') { alert('ไลบรารี QR ยังโหลดไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วรีเฟรช'); return; }
+  const wrap = document.createElement('div'); wrap.className = 'qrsheet';
+  attendees.forEach(a => {
+    const cell = document.createElement('div'); cell.className = 'qi';
+    const qd = document.createElement('div');
+    new QRCode(qd, { text:'REG:' + a.id, width:110, height:110, colorDark:'#18324F' });
+    cell.appendChild(qd);
+    const b = document.createElement('b'); b.textContent = fullName(a); cell.appendChild(b);
+    const s = document.createElement('small'); s.textContent = a.org || ''; cell.appendChild(s);
+    wrap.appendChild(cell);
+  });
+  $('badgeArea').innerHTML = ''; $('badgeArea').appendChild(wrap);
+  setTimeout(() => window.print(), 400);
+};
+/* ========= ข้อมูลงาน + Agenda editor ========= */
+function loadSet(){
+  $('hEv').textContent = settings.name;
+  $('set-name').value = settings.name; $('set-sub').value = settings.sub || '';
+  $('set-name-en').value = settings.name_en || ''; $('set-name-zh').value = settings.name_zh || '';
+  $('set-date').value = settings.date; $('set-venue').value = settings.venue;
+  $('set-org').value = settings.org; $('set-hook').value = settings.hook || '';
+  if (settings.logo) { $('logoPreview').src = settings.logo; $('logoPreviewWrap').style.display = 'block'; $('btnLogoRemove').style.display = 'inline-block'; }
+  else { $('logoPreviewWrap').style.display = 'none'; $('btnLogoRemove').style.display = 'none'; }
+  renderAgRows();
+}
+$('btnLogoPick').onclick = () => $('logoFileIn').click();
+$('logoFileIn').onchange = e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const maxDim = 320;
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; } else { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      settings.logo = canvas.toDataURL('image/png');
+      $('logoPreview').src = settings.logo;
+      $('logoPreviewWrap').style.display = 'block';
+      $('btnLogoRemove').style.display = 'inline-block';
+      toast('อัปโหลดโลโก้แล้ว — กด "บันทึกข้อมูลงานทั้งหมด" เพื่อให้มีผลที่หน้าเช็คอิน');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+};
+$('btnLogoRemove').onclick = () => {
+  settings.logo = '';
+  $('logoPreviewWrap').style.display = 'none';
+  $('btnLogoRemove').style.display = 'none';
+  toast('ลบโลโก้แล้ว — กด "บันทึกข้อมูลงานทั้งหมด" เพื่อให้มีผล');
+};
+function renderAgRows(){
+  $('agRows').innerHTML = (settings.agenda||[]).map((s,i) =>
+    '<div class="agrow">'
+    + '<input value="' + esc(s.time) + '" placeholder="09:00" data-i="' + i + '" data-f="time">'
+    + '<input value="' + esc(s.title) + '" placeholder="หัวข้อ" data-i="' + i + '" data-f="title">'
+    + '<input value="' + esc(s.speaker) + '" placeholder="วิทยากร (ถ้ามี)" data-i="' + i + '" data-f="speaker">'
+    + '<button type="button" data-act="agdel" data-id="' + i + '" title="ลบ">ลบ</button></div>').join('')
+    || '<p class="hint">ยังไม่มีกำหนดการ</p>';
+  $('agRows').querySelectorAll('input').forEach(inp =>
+    inp.addEventListener('input', () => { settings.agenda[+inp.dataset.i][inp.dataset.f] = inp.value; }));
+}
+function agDel(i){ settings.agenda.splice(i,1); renderAgRows(); }
+$('btnAgAdd').onclick = () => { settings.agenda = settings.agenda || []; settings.agenda.push({time:'', title:'', speaker:''}); renderAgRows(); };
+$('btnSaveSet').onclick = () => {
+  settings.name = $('set-name').value.trim(); settings.sub = $('set-sub').value.trim();
+  settings.name_en = $('set-name-en').value.trim(); settings.name_zh = $('set-name-zh').value.trim();
+  settings.date = $('set-date').value.trim(); settings.venue = $('set-venue').value.trim();
+  settings.org = $('set-org').value.trim(); settings.hook = $('set-hook').value.trim();
+  settings.agenda = (settings.agenda||[]).filter(s => s && (s.time || s.title)).sort((a,b) => String(a.time||'').localeCompare(String(b.time||'')));
+  saveSet(); loadSet(); pushSettings(); toast('บันทึกแล้ว — ทุกอุปกรณ์อัปเดตทันที');
+};
+
+/* ========= ผู้ช่วยถามตอบ (ประมวลผลในเครื่อง) ========= */
+const CHIP_QS = ['ตอนนี้เช็คอินแล้วกี่คน','ยังไม่มากี่คน','walk-in กี่คน','ประเภทไหนมามากที่สุด','หน่วยงานไหนมามากที่สุด','ช่วงไหนคนมาเยอะสุด'];
+$('chips').innerHTML = CHIP_QS.map(q => '<button type="button" data-act="chip">' + q + '</button>').join('');
+function bubble(txt, who){
+  const d = document.createElement('div'); d.className = 'msg ' + who; d.textContent = txt;
+  $('chat').appendChild(d); $('chat').scrollTop = $('chat').scrollHeight;
+}
+function answer(q){
+  attendees = store.get(K.att, attendees);
+  const total = attendees.length, inn = attendees.filter(a=>a.in).length, out = total - inn,
+        walk = attendees.filter(a=>a.src==='walkin').length;
+  const ql = q.toLowerCase();
+  const has = (...ws) => ws.some(w => ql.includes(w));
+  if (has('ยังไม่มา','ยังไม่เช็ค','ขาด')) {
+    const names = attendees.filter(a => !a.in).slice(0,10).map(fullName);
+    return 'ยังไม่เช็คอิน ' + out + ' คน จากทั้งหมด ' + total + ' คน' + (names.length ? '\nตัวอย่าง: ' + names.join(', ') + (out > 10 ? ' …' : '') : '');
+  }
+  if (has('walk','วอล์ค','หน้างาน') && has('กี่','เท่าไร','จำนวน')) return 'ลงทะเบียน Walk-in หน้างาน ' + walk + ' คน (' + (total ? Math.round(walk/total*100) : 0) + '% ของทั้งหมด)';
+  if (has('เช็คอิน','มาแล้ว','มากี่') && has('กี่','เท่าไร','จำนวน')) return 'เช็คอินแล้ว ' + inn + ' คน จากที่ลงทะเบียน ' + total + ' คน คิดเป็น ' + (total ? Math.round(inn/total*100) : 0) + '%';
+  if (has('ทั้งหมด','รวม') && has('กี่','เท่าไร')) return 'ลงทะเบียนรวมทั้งหมด ' + total + ' คน (ล่วงหน้า ' + (total-walk) + ' / walk-in ' + walk + ')';
+  if (has('ประเภท')) {
+    const t = {}; attendees.forEach(a => { const k = a.type || 'อื่นๆ'; t[k] = t[k] || {n:0,i:0}; t[k].n++; if (a.in) t[k].i++; });
+    const list = Object.entries(t).sort((x,y) => y[1].i - x[1].i);
+    return list.length ? 'สรุปตามประเภท (เช็คอิน/ลงทะเบียน):\n' + list.map(([k,v]) => '• ' + k + ': ' + v.i + '/' + v.n).join('\n') : 'ยังไม่มีข้อมูล';
+  }
+  if (has('หน่วยงาน','โรงพยาบาล','องค์กร')) {
+    const o = {}; attendees.forEach(a => { if (a.org) { o[a.org] = o[a.org] || 0; if (a.in) o[a.org]++; } });
+    const list = Object.entries(o).sort((x,y) => y[1] - x[1]).slice(0,5);
+    return list.length ? 'หน่วยงานที่เช็คอินมากที่สุด:\n' + list.map(([k,v],i) => (i+1) + '. ' + k + ' — ' + v + ' คน').join('\n') : 'ยังไม่มีข้อมูลหน่วยงาน';
+  }
+  if (has('ช่วงไหน','เวลาไหน','ชั่วโมง')) {
+    const s = {}; attendees.filter(a => a.in && a.time).forEach(a => {
+      const d = new Date(a.time); const k = d.getHours().toString().padStart(2,'0') + ':' + (d.getMinutes()<30 ? '00' : '30');
+      s[k] = (s[k]||0) + 1; });
+    const top = Object.entries(s).sort((x,y) => y[1] - x[1])[0];
+    return top ? 'ช่วงที่คนเช็คอินมากที่สุดคือ ' + top[0] + ' น. จำนวน ' + top[1] + ' คน' : 'ยังไม่มีการเช็คอิน';
+  }
+  if (has('กำหนดการ','agenda','ตาราง')) {
+    return (settings.agenda||[]).length ? 'กำหนดการ:\n' + settings.agenda.map(s => '• ' + s.time + ' ' + s.title + (s.speaker ? ' — ' + s.speaker : '')).join('\n') : 'ยังไม่ได้ตั้งกำหนดการ';
+  }
+  // ค้นชื่อ
+  const cleaned = q.replace(/มาหรือยัง|มารึยัง|เช็คอินหรือยัง|มาแล้วหรือยัง|หรือยัง|สถานะ|ค้นหา|หา/g,'').trim();
+  if (cleaned) {
+    const hit = attendees.filter(a => (fullName(a) + ' ' + (a.org||'')).toLowerCase().includes(cleaned.toLowerCase()));
+    if (hit.length) return hit.slice(0,5).map(a => fullName(a) + ' (' + (a.org || a.type || '-') + ') — ' + (a.in ? 'เช็คอินแล้ว ' + fmtTime(a.time) : 'ยังไม่เช็คอิน')).join('\n') + (hit.length > 5 ? '\n…พบทั้งหมด ' + hit.length + ' รายการ' : '');
+  }
+  return 'ยังตอบคำถามนี้ไม่ได้ ลองถามยอดเช็คอิน จำนวน walk-in สรุปตามประเภท/หน่วยงาน กำหนดการ หรือพิมพ์ชื่อคนเพื่อเช็คสถานะครับ';
+}
+function ask(q){
+  q = q || $('askIn').value.trim(); if (!q) return;
+  bubble(q, 'u'); bubble(answer(q), 'a'); $('askIn').value = '';
+}
+$('btnAsk').onclick = () => ask();
+$('askIn').addEventListener('keydown', e => { if (e.key === 'Enter') ask(); });
+
+/* ========= ปิดงาน / ประวัติ / Contact Hub ========= */
+const ctcKey = a => (a.email||'').toLowerCase() || (a.phone||'') || (a.first + ' ' + a.last).toLowerCase();
+$('btnArchive').onclick = () => {
+  if (!attendees.length) { toast('ยังไม่มีรายชื่อในงานปัจจุบัน'); return; }
+  if (!confirm('ปิดงาน "' + settings.name + '" และจัดเก็บ?\nรายชื่อปัจจุบันจะถูกย้ายเข้าประวัติและฐานผู้ติดต่อ')) return;
+  const inn = attendees.filter(a => a.in).length;
+  history.unshift({ id: uid(), name: settings.name, date: settings.date, closedAt: new Date().toISOString(),
+    total: attendees.length, checked: inn, walkin: attendees.filter(a => a.src === 'walkin').length,
+    attendees: attendees });
+  attendees.forEach(a => {
+    const k = ctcKey(a);
+    let c = contacts.find(x => x.key === k);
+    if (!c) { c = { key: k, name: fullName(a), org: a.org || '', email: a.email || '', phone: a.phone || '', type: a.type || '', events: [] }; contacts.push(c); }
+    c.name = fullName(a); if (a.org) c.org = a.org; if (a.email) c.email = a.email;
+    c.events.push({ name: settings.name, date: settings.date, attended: !!a.in });
+  });
+  store.set(K.hist, history); store.set(K.ctc, contacts);
+  attendees = []; saveAtt();
+  renderHist(); renderCtc(); renderOver(); renderList();
+  apiSend(withEvent('/archive'),'POST', { historyEntry: history[0], contacts });
+  toast('จัดเก็บงานเรียบร้อย — พร้อมเริ่มงานใหม่ (ทุกอุปกรณ์)');
+};
+function renderHist(){
+  $('histBox').innerHTML = history.length ? history.map(h =>
+    '<div style="display:flex;gap:.8rem;align-items:center;padding:.6rem 0;border-bottom:1px dashed var(--line)">'
+    + '<div style="flex:1;min-width:0"><b>' + esc(h.name) + '</b><br><small class="hint" style="margin:0">' + esc(h.date) + ' · ลงทะเบียน ' + h.total + ' · เช็คอิน ' + h.checked + ' (' + Math.round(h.checked/h.total*100) + '%) · walk-in ' + h.walkin + '</small></div>'
+    + '<button type="button" class="mini b-ghost" data-act="histx" data-id="' + h.id + '">Excel</button>'
+    + '<button type="button" class="mini b-navy" data-act="histr" data-id="' + h.id + '">นำรายชื่อกลับมาใช้</button></div>').join('')
+    : '<div class="empty">ยังไม่มีงานที่จัดเก็บ</div>';
+}
+function histExport(id){
+  if (needXLSX()) return;
+  const h = history.find(x => x.id === id); if (!h) return;
+  const data = [HEAD.concat(['สถานะ'])];
+  h.attendees.forEach(a => data.push([a.prefix,a.first,a.last,a.org,a.pos,a.type,a.phone,a.email,a.in?'เช็คอินแล้ว':'ไม่มา']));
+  const ws = XLSX.utils.aoa_to_sheet(data); ws['!cols'] = data[0].map(() => ({wch:16}));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'รายชื่อ');
+  dlBlob(new Blob([XLSX.write(wb, { bookType:'xlsx', type:'array' })], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'รายชื่อ-' + h.name.slice(0,24) + '.xlsx');
+}
+function histReuse(id){
+  const h = history.find(x => x.id === id); if (!h) return;
+  if (!confirm('นำรายชื่อ ' + h.attendees.length + ' คนจากงาน "' + h.name + '" มาใส่ในงานปัจจุบัน? (สถานะเช็คอินจะถูกรีเซ็ต)')) return;
+  let n = 0;
+  h.attendees.forEach(a => {
+    if (attendees.some(x => ctcKey(x) === ctcKey(a))) return;
+    attendees.push(Object.assign({}, a, { id: uid(), in:false, time:null, src:'pre' })); n++;
+  });
+  saveAtt(); renderList(); renderOver();
+  pushMany(attendees.filter(x => h.attendees.some(o => ctcKey(o) === ctcKey(x)) && !x.in));
+  toast('นำเข้า ' + n + ' รายชื่อจากงานเดิม');
+}
+function renderCtc(){
+  const only = $('ctcRepeat').checked;
+  const rows = contacts.filter(c => !only || c.events.length > 1).sort((x,y) => y.events.length - x.events.length);
+  $('ctcBody').innerHTML = rows.map(c =>
+    '<tr><td><b>' + esc(c.name) + '</b><br><small>' + esc(c.type||'') + '</small></td><td>' + esc(c.org||'—') + '</td><td>' + esc(c.email||'—') + '</td>'
+    + '<td>' + c.events.length + ' งาน (มาจริง ' + c.events.filter(e => e.attended).length + ')</td></tr>').join('')
+    || '<tr><td colspan="4"><div class="empty">ฐานผู้ติดต่อจะสะสมเมื่อกด "ปิดงานและจัดเก็บ"</div></td></tr>';
+}
+$('ctcRepeat').onchange = renderCtc;
+$('btnCtcExport').onclick = () => {
+  if (needXLSX()) return;
+  const data = [['ชื่อ','หน่วยงาน','ประเภท','อีเมล','เบอร์โทร','จำนวนงานที่ลงทะเบียน','จำนวนงานที่มาจริง']];
+  contacts.forEach(c => data.push([c.name, c.org, c.type, c.email, c.phone, c.events.length, c.events.filter(e => e.attended).length]));
+  const ws = XLSX.utils.aoa_to_sheet(data); ws['!cols'] = data[0].map(() => ({wch:18}));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Contacts');
+  dlBlob(new Blob([XLSX.write(wb, { bookType:'xlsx', type:'array' })], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'ฐานผู้ติดต่อสะสม.xlsx');
+};
+
+/* ========= สำรอง / กู้คืน / ล้าง ========= */
+$('btnBackup').onclick = () => {
+  const blob = new Blob([JSON.stringify({ settings, attendees, history, contacts, exportedAt: new Date().toISOString() }, null, 1)], { type:'application/json' });
+  dlBlob(blob, 'สำรองระบบลงทะเบียน-' + new Date().toISOString().slice(0,10) + '.json');
+  toast('ดาวน์โหลดไฟล์สำรองแล้ว');
+};
+$('btnRestore').onclick = () => $('bakIn').click();
+$('bakIn').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (!confirm('กู้คืนข้อมูลจากไฟล์นี้? ข้อมูลปัจจุบันจะถูกแทนที่ทั้งหมด')) return;
+      settings = Object.assign({}, DEF_SET, d.settings || {}); attendees = d.attendees || [];
+      history = d.history || []; contacts = d.contacts || [];
+      saveSet(); saveAtt(); store.set(K.hist, history); store.set(K.ctc, contacts);
+      loadSet(); renderOver(); renderList(); renderHist(); renderCtc();
+      pushSettings(); pushMany(attendees); apiSend(withEvent('/history'),'POST', history); apiSend('/contacts','POST', contacts);
+      toast('กู้คืนข้อมูลเรียบร้อย และซิงก์ขึ้นทุกอุปกรณ์แล้ว');
+    } catch(err){ alert('ไฟล์ไม่ถูกต้อง: ' + err); }
+    e.target.value = '';
+  };
+  r.readAsText(f);
+};
+$('btnWipeAtt').onclick = () => {
+  if (!confirm('ล้างรายชื่อของงานปัจจุบันทั้งหมด? (ประวัติงานและฐานผู้ติดต่อยังอยู่)')) return;
+  attendees = []; saveAtt(); renderList(); renderOver();
+  apiSend(withEvent('/clear-attendees'),'POST', {});
+  toast('ล้างรายชื่อแล้ว (ทุกอุปกรณ์)');
+};
+$('btnWipeAll').onclick = () => {
+  if (!confirm('ล้างข้อมูล "ทั้งหมด" รวมประวัติงานและฐานผู้ติดต่อ?')) return;
+  if (!confirm('ยืนยันอีกครั้ง — ย้อนกลับไม่ได้')) return;
+  attendees = []; history = []; contacts = [];
+  saveAtt(); store.set(K.hist, []); store.set(K.ctc, []);
+  renderList(); renderOver(); renderHist(); renderCtc();
+  apiSend(withEvent('/wipe-all'),'POST', {});
+  toast('ล้างข้อมูลทั้งหมดแล้ว (ทุกอุปกรณ์)');
+};
+
+/* ========= ปุ่มทั้งหมดผ่านตัวจัดการกลาง — ไม่มีปุ่มตายเงียบ ========= */
+const ACT = {
+  edit: id => openEdit(id), qr: id => showQr(id), badge: id => printBadge(id),
+  del: id => delA(id), mail: id => sendMail(id),
+  agdel: i => agDel(parseInt(i, 10)), histx: id => histExport(id), histr: id => histReuse(id),
+  chip: (id, b) => ask(b.textContent), openev: id => { location.href = 'admin.html?event=' + encodeURIComponent(id); },
+  delev: (id, b) => deleteEvent(id, b)
+};
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  e.preventDefault();
+  try {
+    const r = ACT[b.dataset.act](b.dataset.id, b);
+    if (r && typeof r.catch === 'function') r.catch(err => { console.error(err); toast('เกิดข้อผิดพลาด: ' + err.message); });
+  } catch(err){ console.error(err); toast('เกิดข้อผิดพลาด: ' + err.message); }
+});
+window.addEventListener('error', ev => {
+  const m = String(ev.message || '');
+  if (!m || /^Script error/i.test(m)) return;
+  try{ toast('ระบบแจ้งเตือน: ' + m); }catch(e){}
+});
+window.addEventListener('unhandledrejection', ev => { console.warn('unhandled:', ev.reason); });
+
+/* ========= เริ่มต้น ========= */
+applyEventMode();
+if (EVENT_ID) {
+  document.querySelectorAll('nav.abar button').forEach(x => x.classList.toggle('on', x.dataset.pg === 'over'));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('on', p.id === 'pg-over'));
+  loadSet(); renderOver(); renderList();
+  bubble('สวัสดีครับ ถามข้อมูลงานได้เลย เช่น "เช็คอินแล้วกี่คน" หรือพิมพ์ชื่อคนเพื่อเช็คสถานะ', 'a');
+  startSync();
+} else {
+  renderEvList();
+  setInterval(renderEvList, 8000);
+}
+if (!store.persistent) toast('โหมดพรีวิว: ข้อมูลจะไม่ถูกบันทึกถาวร');
+</script>
+</body>
+</html>

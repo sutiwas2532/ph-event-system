@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>รายงานสถานะลงทะเบียน — เรียลไทม์</title>
+<meta name="theme-color" content="#FAF8F3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=Sarabun:wght@400;500;600;700&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1C2B3A;--line:#E5DFD2;--cream:#FAF8F3;--indigo:#4338CA;--indigo-line:rgba(67,56,202,.12);--ok:#2E8B57;--r:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun',sans-serif;background:var(--cream);color:var(--ink);font-size:16px;min-height:100dvh}
+h1,h2{font-family:'Bai Jamjuree','Sarabun',sans-serif}
+header{padding:1.4rem 1.15rem 1rem}
+header .accent{font-family:'Instrument Serif',serif;font-style:italic;color:var(--indigo);font-size:1.05rem}
+header h1{font-size:clamp(1.3rem,4.6vw,1.7rem);margin-top:.15rem}
+header p{color:#6B6455;font-size:.88rem;margin-top:.4rem}
+.live{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--ok);font-weight:600;margin-top:.6rem}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;animation:pulse 1.6s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+main{max-width:820px;margin:0 auto;padding:.4rem 1.15rem 2rem}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem;margin-bottom:1rem}
+@media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:.9rem 1rem}
+.stat .num{font-size:2.1rem;font-weight:700;color:var(--ink);font-family:'Bai Jamjuree';line-height:1.1}
+.stat.a .num{color:var(--indigo)}
+.stat small{color:#6B6455;font-size:.82rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:1.1rem;margin-bottom:1rem}
+.card h2{font-size:1.05rem;margin-bottom:.7rem;border-bottom:2px solid var(--indigo);padding-bottom:.4rem;display:inline-block}
+.bar-outer{background:var(--line);border-radius:99px;height:14px;overflow:hidden;margin:.4rem 0}
+.bar-in{background:var(--indigo);height:100%;border-radius:99px;transition:width .5s}
+.hint{font-size:.82rem;color:#8A8272}
+.chart{display:flex;align-items:flex-end;gap:4px;height:120px;padding-top:.5rem}
+.chart .c{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;min-width:0}
+.chart .c i{display:block;width:100%;background:var(--indigo);border-radius:4px 4px 0 0;min-height:2px}
+.chart .c small{font-size:.6rem;color:#8A8272;white-space:nowrap}
+.agenda li{list-style:none;display:flex;gap:.8rem;padding:.5rem 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.agenda li:last-child{border-bottom:none}
+.agenda .t{font-family:'Bai Jamjuree';font-weight:600;white-space:nowrap;min-width:70px}
+.empty{padding:2rem 1rem;text-align:center;color:#8A8272;background:#fff;border:1.5px dashed var(--line);border-radius:var(--r)}
+footer{text-align:center;color:#8A8272;font-size:.78rem;padding:1.5rem 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="accent">Professor Healthcare</div>
+  <h1 id="hName">รายงานสถานะลงทะเบียน</h1>
+  <p id="hMeta"></p>
+  <div class="live"><i></i> อัปเดตสด</div>
+</header>
+<main>
+  <div id="body">
+    <div class="stats">
+      <div class="stat"><div class="num" id="s-total">0</div><small>ลงทะเบียนทั้งหมด</small></div>
+      <div class="stat a"><div class="num" id="s-in">0</div><small>เช็คอินแล้ว</small></div>
+      <div class="stat"><div class="num" id="s-walkin">0</div><small>Walk-in</small></div>
+      <div class="stat a"><div class="num" id="s-pct">0%</div><small>อัตราเข้างาน</small></div>
+    </div>
+    <div class="card"><h2>ความคืบหน้าการเช็คอิน</h2>
+      <div class="bar-outer"><div class="bar-in" id="bar" style="width:0%"></div></div>
+      <small class="hint" id="barLabel"></small>
+    </div>
+    <div class="card"><h2>เช็คอินรายช่วงเวลา</h2><div class="chart" id="chart"></div></div>
+    <div class="card"><h2>กำหนดการ</h2><ul class="agenda" id="agendaList"></ul></div>
+  </div>
+</main>
+<footer>รายงานนี้แสดงเฉพาะสถิติรวม ไม่มีรายชื่อหรือข้อมูลส่วนตัวผู้เข้าร่วม · Professor Healthcare Co., Ltd.</footer>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const EVENT_ID = new URLSearchParams(location.search).get('event');
+if (!EVENT_ID) {
+  $('body').innerHTML = '<div class="empty">ไม่พบลิงก์งานนี้ — กรุณาตรวจสอบลิงก์ที่ได้รับอีกครั้ง</div>';
+} else {
+  async function load(){
+    let settings = null, attendees = [];
+    try {
+      const [sr, ar] = await Promise.all([
+        fetch('/api/settings?event=' + encodeURIComponent(EVENT_ID), { cache:'no-store' }),
+        fetch('/api/attendees?event=' + encodeURIComponent(EVENT_ID), { cache:'no-store' })
+      ]);
+      if (sr.ok) settings = await sr.json();
+      if (ar.ok) attendees = await ar.json();
+    } catch(e){}
+    if (!settings) { $('body').innerHTML = '<div class="empty">ยังโหลดข้อมูลไม่ได้ — ลองรีเฟรชอีกครั้ง</div>'; return; }
+    $('hName').textContent = settings.name || 'งานลงทะเบียน';
+    $('hMeta').textContent = [settings.date, settings.venue].filter(Boolean).join(' · ');
+    const total = attendees.length, inn = attendees.filter(a=>a.in).length,
+          walk = attendees.filter(a=>a.src==='walkin').length,
+          pct = total ? Math.round(inn/total*100) : 0;
+    $('s-total').textContent = total; $('s-in').textContent = inn;
+    $('s-walkin').textContent = walk; $('s-pct').textContent = pct + '%';
+    $('bar').style.width = pct + '%';
+    $('barLabel').textContent = 'เช็คอินแล้ว ' + inn + ' จาก ' + total + ' คน · ยังไม่มา ' + (total-inn) + ' คน';
+    const slots = {};
+    attendees.filter(a => a.in && a.time).forEach(a => {
+      const d = new Date(a.time);
+      const k = d.getHours().toString().padStart(2,'0') + ':' + (d.getMinutes()<30 ? '00' : '30');
+      slots[k] = (slots[k]||0) + 1;
+    });
+    const keys = Object.keys(slots).sort(), max = Math.max(1, ...Object.values(slots));
+    $('chart').innerHTML = keys.length
+      ? keys.map(k => '<div class="c"><small>' + slots[k] + '</small><i style="height:' + Math.round(slots[k]/max*90) + 'px"></i><small>' + k + '</small></div>').join('')
+      : '<div class="empty" style="width:100%">ยังไม่มีการเช็คอิน</div>';
+    const ag = (settings.agenda||[]).filter(s=>s&&s.time).slice().sort((a,b)=>String(a.time).localeCompare(String(b.time)));
+    $('agendaList').innerHTML = ag.length
+      ? ag.map(s => '<li><span class="t">' + esc(s.time) + '</span><span>' + esc(s.title) + (s.speaker?'<br><small style="color:#8A8272">'+esc(s.speaker)+'</small>':'') + '</span></li>').join('')
+      : '<li><span class="hint">ยังไม่มีกำหนดการ</span></li>';
+  }
+  load();
+  setInterval(load, 5000);
+}
+</script>
+</body>
+</html>

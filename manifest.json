@@ -1,0 +1,20 @@
+{
+  "name": "Professor Healthcare Event Check-in",
+  "short_name": "PHC Check-in",
+  "description": "ระบบลงทะเบียนหน้างาน Professor Healthcare",
+  "start_url": "events.html",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FAF8F3",
+  "theme_color": "#224269",
+  "lang": "th",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23224269'/%3E%3Ctext x='256' y='348' font-family='Arial,sans-serif' font-size='280' font-weight='bold' fill='%23EDAE3C' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

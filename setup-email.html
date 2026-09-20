@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตั้งค่าระบบส่งอีเมล QR — Professor Healthcare</title>
+<meta name="theme-color" content="#224269">
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
+<style>
+:root{--navy:#224269;--navy-deep:#18324F;--gold:#EDAE3C;--gold-soft:#F7E3BC;--cream:#FAF8F3;
+--ink:#1C2B3A;--line:#E5DFD2;--ok:#2E8B57;--warn:#C0392B}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun',sans-serif;background:var(--cream);color:var(--ink);font-size:16px}
+h1,h2,h3{font-family:'Bai Jamjuree','Sarabun',sans-serif}
+button{font-family:inherit;cursor:pointer;border:none}
+input,textarea{font-family:inherit;font-size:1rem}
+header{background:linear-gradient(135deg,var(--navy-deep),var(--navy));color:#fff;padding:1.2rem}
+header .in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:.7rem}
+.logo-p{width:34px;height:34px;border:2.5px solid var(--gold);border-radius:8px;display:grid;place-items:center;font-family:'Bai Jamjuree';font-weight:700;color:var(--gold);font-size:1.2rem;flex-shrink:0}
+header h1{font-size:1.1rem}
+header small{opacity:.75;font-size:.8rem}
+header a{margin-left:auto;color:var(--gold);border:1.5px solid var(--gold);border-radius:9px;padding:.4rem .8rem;text-decoration:none;font-size:.85rem;font-weight:600;white-space:nowrap}
+main{max-width:760px;margin:0 auto;padding:1.2rem}
+.step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1.1rem;margin-bottom:1rem;position:relative;padding-left:3.4rem}
+.step .n{position:absolute;left:1rem;top:1.1rem;width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-family:'Bai Jamjuree';font-weight:700;font-size:.9rem}
+.step.done .n{background:var(--ok)}
+.step h2{font-size:1.05rem;color:var(--navy);margin-bottom:.5rem}
+.step p{font-size:.93rem;line-height:1.65;margin-bottom:.6rem}
+.step ol{margin:.3rem 0 .6rem 1.1rem;font-size:.93rem;line-height:1.75}
+.step ol li{margin-bottom:.15rem}
+kbd{background:var(--gold-soft);border-radius:5px;padding:.1rem .4rem;font-family:inherit;font-weight:600;font-size:.9rem;white-space:nowrap}
+.codebox{position:relative;background:var(--navy-deep);border-radius:11px;padding:.9rem;overflow:auto;max-height:230px}
+.codebox pre{color:#DCE6F2;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.74rem;line-height:1.55;white-space:pre}
+.btnrow{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:.7rem}
+.btnrow button,.btnrow a{padding:.62rem 1rem;border-radius:11px;font-weight:600;font-size:.92rem;text-decoration:none;display:inline-block}
+.b-gold{background:var(--gold);color:var(--navy-deep)}
+.b-navy{background:var(--navy);color:#fff}
+.b-ghost{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.b-ok{background:var(--ok);color:#fff}
+input[type=text],input[type=email]{width:100%;padding:.7rem .85rem;border:1.5px solid var(--line);border-radius:11px;margin-bottom:.5rem}
+input:focus{outline:none;border-color:var(--gold)}
+label{display:block;font-size:.85rem;font-weight:600;color:var(--navy);margin-bottom:.25rem}
+.res{margin-top:.7rem;padding:.7rem .9rem;border-radius:11px;font-size:.9rem;line-height:1.6;display:none}
+.res.ok{display:block;background:#E8F5EC;border:1.5px solid var(--ok)}
+.res.bad{display:block;background:#FDECEA;border:1.5px solid var(--warn)}
+.res.info{display:block;background:var(--gold-soft);border:1.5px solid var(--gold)}
+.status{background:#fff;border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:1rem;font-size:.93rem}
+.status b{color:var(--navy)}
+.status.on{border-left-color:var(--ok)}
+.hint{font-size:.82rem;color:#8A8272;line-height:1.6}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy-deep);color:#fff;padding:.6rem 1.2rem;border-radius:99px;font-size:.9rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99;white-space:nowrap}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <div class="logo-p">P</div>
+  <div><h1>ตั้งค่าระบบส่งอีเมล QR</h1><small>เชื่อม Google Apps Script เข้ากับระบบลงทะเบียน</small></div>
+  <a href="admin.html">← หลังบ้าน</a>
+</div></header>
+<main>
+
+<div class="status" id="status"></div>
+
+<div class="step" id="st1"><div class="n">1</div>
+  <h2>เปิดโปรเจกต์ใหม่ใน Google Apps Script</h2>
+  <p>ล็อกอินด้วยบัญชี Google ที่ต้องการใช้ส่งอีเมล (แนะนำอีเมลบริษัท) แล้วกดสร้างโปรเจกต์ใหม่</p>
+  <div class="btnrow"><a class="b-navy" href="https://script.google.com/home/projects/create" target="_blank" rel="noopener">เปิด script.google.com →</a></div>
+</div>
+
+<div class="step" id="st2"><div class="n">2</div>
+  <h2>คัดลอกโค้ดนี้ไปวางแทนโค้ดเดิมทั้งหมด</h2>
+  <p>ในหน้าต่างที่เปิดขึ้น จะมีไฟล์ <kbd>Code.gs</kbd> อยู่แล้ว — ลบข้อความเดิมออกให้หมด แล้ววางโค้ดนี้ จากนั้นกด <kbd>Ctrl/Cmd + S</kbd> เพื่อบันทึก</p>
+  <div class="codebox"><pre id="code"></pre></div>
+  <div class="btnrow">
+    <button class="b-gold" id="btnCopy">📋 คัดลอกโค้ดทั้งหมด</button>
+    <button class="b-ghost" id="btnDl">⬇ ดาวน์โหลดเป็นไฟล์</button>
+  </div>
+</div>
+
+<div class="step" id="st3"><div class="n">3</div>
+  <h2>Deploy เป็น Web app</h2>
+  <ol>
+    <li>กดปุ่ม <kbd>Deploy</kbd> มุมขวาบน → <kbd>New deployment</kbd></li>
+    <li>กดไอคอนฟันเฟือง ⚙️ ข้าง "Select type" → เลือก <kbd>Web app</kbd></li>
+    <li>ช่อง <kbd>Execute as</kbd> เลือก <b>Me</b></li>
+    <li>ช่อง <kbd>Who has access</kbd> เลือก <b>Anyone</b> (สำคัญมาก ถ้าเลือกอย่างอื่นระบบจะส่งไม่ได้)</li>
+    <li>กด <kbd>Deploy</kbd> → <kbd>Authorize access</kbd> → เลือกบัญชี → หากขึ้นเตือน "Google hasn't verified" ให้กด <kbd>Advanced</kbd> → <kbd>Go to … (unsafe)</kbd> → <kbd>Allow</kbd></li>
+    <li>คัดลอก <b>Web app URL</b> ที่ได้ (ลงท้ายด้วย <kbd>/exec</kbd>)</li>
+  </ol>
+  <p class="hint">คำเตือน "unverified" เป็นเรื่องปกติของสคริปต์ที่เราเขียนเอง เพราะยังไม่ได้ส่งให้ Google ตรวจ ไม่ใช่ความเสี่ยงด้านความปลอดภัย</p>
+</div>
+
+<div class="step" id="st4"><div class="n">4</div>
+  <h2>วาง URL แล้วเชื่อมเข้าระบบ</h2>
+  <label>Web app URL</label>
+  <input type="text" id="hookUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
+  <div class="btnrow">
+    <button class="b-navy" id="btnCheck">🔌 ทดสอบการเชื่อมต่อ</button>
+    <button class="b-ok" id="btnSave">💾 บันทึกเข้าระบบ</button>
+  </div>
+  <div class="res" id="res4"></div>
+</div>
+
+<div class="step" id="st5"><div class="n">5</div>
+  <h2>ส่งอีเมลทดสอบพร้อม QR Code</h2>
+  <label>ส่งไปที่อีเมล</label>
+  <input type="email" id="testMail" placeholder="sutiwas@proudtopresent.net" autocomplete="off">
+  <div class="btnrow"><button class="b-gold" id="btnTest">✉ ส่งอีเมลทดสอบ</button></div>
+  <div class="res" id="res5"></div>
+  <p class="hint" style="margin-top:.6rem">ถ้าได้รับอีเมลพร้อมภาพ QR แสดงว่าเชื่อมต่อสำเร็จ — กลับไปที่หลังบ้าน แท็บรายชื่อ แล้วกด "✉ ส่งอีเมล QR ทั้งหมด" ได้เลย</p>
+</div>
+
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const K = { set:'phc_settings' };
+const $ = id => document.getElementById(id);
+const store = {
+  get(k,d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+};
+let settings = store.get(K.set, {});
+let toastT;
+function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
+function show(el, cls, html){ const e = $(el); e.className = 'res ' + cls; e.innerHTML = html; }
+
+const CODE = `/**
+ * Webhook ส่งอีเมลยืนยันลงทะเบียนพร้อม QR Code
+ * ระบบลงทะเบียนหน้างาน — Professor Healthcare
+ */
+function doPost(e) {
+  try {
+    var d = JSON.parse(e.postData.contents);
+    if (!d.to || !d.subject) return out('missing to/subject');
+
+    var opts = { name: d.from || 'Professor Healthcare' };
+    var html = (d.body || '').replace(/\\n/g, '<br>');
+
+    if (d.qr && d.qr.indexOf('base64,') > -1) {
+      var qrBlob = Utilities.newBlob(
+        Utilities.base64Decode(d.qr.split('base64,')[1]),
+        'image/png', 'qr-checkin.png'
+      );
+      opts.inlineImages = { qrimg: qrBlob };
+      opts.attachments = [qrBlob];
+      html += '<br><br><b>QR Code สำหรับเช็คอินหน้างาน</b><br>' +
+              '<img src="cid:qrimg" width="220" height="220" alt="QR Check-in"><br>' +
+              '<small>รหัส: ' + (d.code || '') + '</small>';
+    }
+    opts.htmlBody =
+      '<div style="font-family:Arial,sans-serif;font-size:15px;color:#1C2B3A;line-height:1.6">' +
+      html + '</div>';
+
+    MailApp.sendEmail(d.to, d.subject, d.body || '', opts);
+    return out('ok');
+  } catch (err) {
+    return out('error: ' + err);
+  }
+}
+
+function doGet() {
+  return out('phc-email-webhook-ready');
+}
+
+function out(msg) {
+  return ContentService.createTextOutput(msg).setMimeType(ContentService.MimeType.TEXT);
+}`;
+$('code').textContent = CODE;
+
+$('btnCopy').onclick = async () => {
+  try { await navigator.clipboard.writeText(CODE); toast('คัดลอกโค้ดแล้ว — ไปวางใน Code.gs ได้เลย'); }
+  catch(e){
+    const r = document.createRange(); r.selectNodeContents($('code'));
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    toast('เลือกข้อความให้แล้ว กด Cmd/Ctrl + C เพื่อคัดลอก');
+  }
+};
+$('btnDl').onclick = () => {
+  const a = document.createElement('a');
+  const url = URL.createObjectURL(new Blob([CODE], { type:'text/plain;charset=utf-8' }));
+  a.href = url; a.download = 'Code.gs'; a.style.display = 'none';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1200);
+};
+
+function validUrl(u){ return /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec/.test(u); }
+
+$('btnCheck').onclick = async () => {
+  const u = $('hookUrl').value.trim();
+  if (!validUrl(u)) { show('res4','bad','URL ยังไม่ถูกต้อง — ต้องขึ้นต้นด้วย <b>https://script.google.com/macros/s/</b> และลงท้ายด้วย <b>/exec</b><br>ถ้าลงท้ายด้วย /dev แปลว่ายังไม่ได้ Deploy จริง กรุณาทำขั้นตอนที่ 3 ให้ครบ'); return; }
+  show('res4','info','กำลังทดสอบการเชื่อมต่อ…');
+  try {
+    const r = await fetch(u, { method:'GET' });
+    const t = (await r.text()).trim();
+    if (t.includes('phc-email-webhook-ready')) show('res4','ok','✓ เชื่อมต่อได้ และเป็นสคริปต์ที่ถูกต้อง — กด "บันทึกเข้าระบบ" ต่อได้เลย');
+    else show('res4','info','เชื่อมต่อ URL ได้ แต่ยังไม่เจอข้อความยืนยันจากสคริปต์ — ตรวจว่าวางโค้ดครบและ Deploy ใหม่หลังแก้โค้ดแล้ว<br>ถ้ามั่นใจว่าถูกต้อง กด "บันทึกเข้าระบบ" แล้วลองส่งอีเมลทดสอบในขั้นตอนที่ 5 ได้');
+  } catch(e) {
+    show('res4','info','เบราว์เซอร์บล็อกการอ่านผลลัพธ์ข้ามโดเมน (CORS) ซึ่งเป็นเรื่องปกติ — ไม่ได้แปลว่า URL ผิด<br>กด "บันทึกเข้าระบบ" แล้วทดสอบด้วยการส่งอีเมลจริงในขั้นตอนที่ 5 จะชัดเจนกว่า');
+  }
+};
+$('btnSave').onclick = () => {
+  const u = $('hookUrl').value.trim();
+  if (!validUrl(u)) { show('res4','bad','URL ยังไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง'); return; }
+  settings = store.get(K.set, {});
+  settings.hook = u;
+  if (store.set(K.set, settings)) {
+    show('res4','ok','✓ บันทึกเข้าระบบแล้ว — หลังบ้านและหน้างานจะใช้ URL นี้ส่งอีเมลอัตโนมัติ');
+    renderStatus(); toast('เชื่อมต่อระบบอีเมลเรียบร้อย');
+  } else show('res4','bad','บันทึกไม่สำเร็จ — เบราว์เซอร์อาจปิดการเก็บข้อมูล ลองเปิดโหมดปกติ (ไม่ใช่ไม่ระบุตัวตน)');
+};
+
+$('btnTest').onclick = async () => {
+  const to = $('testMail').value.trim();
+  const u = $('hookUrl').value.trim() || settings.hook;
+  if (!u) { show('res5','bad','ยังไม่ได้ตั้งค่า URL — ทำขั้นตอนที่ 4 ก่อน'); return; }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) { show('res5','bad','กรุณากรอกอีเมลผู้รับให้ถูกต้อง'); return; }
+  show('res5','info','กำลังส่ง…');
+  let qr = null;
+  if (typeof QRCode !== 'undefined') {
+    const d = document.createElement('div');
+    new QRCode(d, { text:'REG:TESTCODE123', width:220, height:220, colorDark:'#18324F' });
+    await new Promise(r => setTimeout(r, 250));
+    const img = d.querySelector('canvas, img');
+    try { qr = img ? (img.tagName === 'CANVAS' ? img.toDataURL() : img.src) : null; } catch(e){}
+  }
+  const ev = store.get(K.set, {});
+  try {
+    await fetch(u, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({
+        to, from: ev.org || 'Professor Healthcare',
+        subject: 'ทดสอบระบบส่งอีเมลลงทะเบียน — ' + (ev.name || 'Professor Healthcare'),
+        body: 'นี่คืออีเมลทดสอบจากระบบลงทะเบียนหน้างาน\n\nถ้าท่านเห็นภาพ QR Code ด้านล่าง แสดงว่าการเชื่อมต่อสมบูรณ์และพร้อมใช้งานจริง',
+        code: 'TESTCODE123', qr })});
+    show('res5','ok','ส่งคำสั่งไปที่ Google แล้ว — ตรวจกล่องจดหมายของ <b>' + to + '</b> ภายใน 1–2 นาที (ดูโฟลเดอร์ Spam ด้วย)<br>ถ้าไม่ได้รับ ให้กลับไปตรวจว่าขั้นตอนที่ 3 เลือก <b>Who has access = Anyone</b> แล้วหรือยัง');
+  } catch(e) {
+    show('res5','bad','ส่งไม่สำเร็จ: ' + e.message + '<br>ตรวจสอบอินเทอร์เน็ตและ URL อีกครั้ง');
+  }
+};
+
+function renderStatus(){
+  settings = store.get(K.set, {});
+  const s = $('status');
+  if (settings.hook) {
+    s.className = 'status on';
+    s.innerHTML = '<b>✓ เชื่อมต่อระบบอีเมลแล้ว</b><br><span class="hint" style="word-break:break-all">' + settings.hook + '</span>';
+    $('hookUrl').value = settings.hook;
+    ['st1','st2','st3','st4'].forEach(i => $(i).classList.add('done'));
+  } else {
+    s.className = 'status';
+    s.innerHTML = '<b>ยังไม่ได้เชื่อมต่อระบบอีเมล</b><br><span class="hint">ทำตาม 5 ขั้นตอนด้านล่าง ใช้เวลาประมาณ 3 นาที ทำครั้งเดียวใช้ได้ตลอด</span>';
+  }
+  if (settings.name) document.title = 'ตั้งค่าอีเมล — ' + settings.name;
+}
+renderStatus();
+</script>
+</body>
+</html>
