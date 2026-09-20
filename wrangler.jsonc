@@ -1,1 +1,13 @@
-
+{
+  "name": "ph-event-system",
+  "compatibility_date": "2026-09-20",
+  "main": "src/worker.js",
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "kv_namespaces": [
+    { "binding": "PHC_KV", "id": "3ab1b23d361d40c89c58ed83e85b7f80" }
+  ]
+}
