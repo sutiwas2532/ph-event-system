@@ -296,7 +296,7 @@ var N = QUESTIONS.length;
 var LETTERS = 'ABCDEFGHIJ';
 var COLORS = ['#1b2a7a','#c8102e','#0890b8','#d4541f','#5f9618','#6a2c91'];
 var DEFAULT_POLL = 'nucala-crswnp-poll2';
-var PUBLIC_FALLBACK = 'https://registration-event.professorhealthcare.com/poll2/';
+var PUBLIC_FALLBACK = 'https://registration-event.professorhealthcare.com/Poll2/';
 
 /* ================= SETUP ================= */
 var params = new URLSearchParams(location.search);
@@ -305,7 +305,7 @@ var API = '/api/poll';
 var Q = '?poll=' + encodeURIComponent(POLL);
 var isHttp = /^https?:$/.test(location.protocol);
 var LIVE_HOST = /(professorhealthcare\.com|proudtopresent\.net|workers\.dev|pages\.dev)$|^localhost$|^127\.0\.0\.1$/i.test(location.hostname);
-var AUD_URL = (isHttp && LIVE_HOST) ? (location.origin + '/poll2/' + (POLL !== DEFAULT_POLL ? '?poll=' + POLL : '')) : PUBLIC_FALLBACK;
+var AUD_URL = (isHttp && LIVE_HOST) ? (location.origin + location.pathname.replace(/[^\/]*$/, '') + (POLL !== DEFAULT_POLL ? '?poll=' + POLL : '')) : PUBLIC_FALLBACK;
 
 var S = { idx:0, phase:'lobby', counts:[], all:{}, total:0, joined:0, rev:0 };
 var mode = 'boot';
