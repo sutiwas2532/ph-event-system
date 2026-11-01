@@ -9,6 +9,14 @@
   },
   "kv_namespaces": [
     { "binding": "PHC_KV", "id": "7a4744bbcc2e48aa8c5d4adbbda327b8" }
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "POLL_ROOM", "class_name": "PollRoom" }
+    ]
+  },
+  "migrations": [
+    { "tag": "poll-v1", "new_sqlite_classes": ["PollRoom"] }
   ]
 }
 
